@@ -14,7 +14,7 @@
                         <div class="flex items-center space-x-4">
                             <div class="flex-shrink-0">
                                 <img class="w-8 h-8 rounded-full"
-                                    src="{{ asset('assets/image/customers/profile/' . $item->foto) }}"
+                                    src="@userPhoto($item->foto)"
                                     alt="">
                             </div>
                             <div class="flex-1 min-w-0">

@@ -93,7 +93,7 @@
                                 </div>
                                 <div class="_image-name flex items-center gap-2">
                                     <img class="w-[40px] h-[40px] rounded-[10px] object-cover"
-                                        src="{{ asset('assets/image/customers/profile/' . $user->foto) }}" alt="">
+                                        src="@userPhoto($user->foto)" alt="">
                                     <p class="text-[12px] font-medium">{{ $user->name }}</p>
                                 </div>
                                 <div class="_judul-iklan-status-iklan">
@@ -152,7 +152,7 @@
                                 </div>
                                 <div class="_image-name flex items-center gap-2">
                                     <img class="w-[40px] h-[40px] rounded-[10px] object-cover"
-                                        src="{{ asset('assets/image/customers/profile/' . $user->foto) }}"
+                                        src="@userPhoto($user->foto)"
                                         alt="">
                                     <p class="text-[12px] font-medium">{{ $user->name }}</p>
                                 </div>

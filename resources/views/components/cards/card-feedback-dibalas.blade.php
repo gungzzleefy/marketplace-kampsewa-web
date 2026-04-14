@@ -80,7 +80,7 @@
                             <div class="_profile flex items-center gap-2">
                                 <div class="_foto w-[40px] h-[40px] rounded-full overflow-hidden"><img
                                         class="object-cover w-full"
-                                        src="{{ asset('assets/image/customers/profile/' . $item->foto) }}"
+                                        src="@userPhoto($item->foto)"
                                         alt=""></div>
                                 <div class="_name-alamat">
                                     <p class="text-[14px] font-bold">{{ $item->name }}</p>

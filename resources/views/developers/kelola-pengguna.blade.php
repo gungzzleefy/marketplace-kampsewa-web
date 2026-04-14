@@ -77,7 +77,7 @@
                     <div class="_photo-name-address flex items-center gap-[10px]">
                         <div class="_photo relative overflow-hidden w-[60px] h-[60px] rounded-[20px]">
                             <img class="w-full object-cover"
-                                src="{{ asset('assets/image/customers/profile/' . $item->foto) }}" alt="">
+                                src="@userPhoto($item->foto)" alt="">
                         </div>
                         <div class="_name-address">
                             <div class="_name font-bold text-[#19191b] line-clamp-1">{{ $item->name }}</div>

@@ -116,7 +116,7 @@
                     <div class="--card p-4 shadow-box-shadow-11">
                         <div class="--header flex items-start gap-4 mb-2">
                             <img class="w-[50px] h-[50px] rounded-full object-cover"
-                                src="{{ asset('assets/image/customers/profile/'.$ratingUlasan->foto) }}" alt="">
+                                src="@userPhoto($ratingUlasan->foto)" alt="">
                             <div class="--name-rating">
                                 <p class="text-[14px] font-medium">{{ $ratingUlasan['user_name'] }}</p>
                                 @php

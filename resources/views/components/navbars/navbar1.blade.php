@@ -50,8 +50,8 @@
                                 </p>
                             </div>
                             <div class="_profile-image-icon flex items-center gap-[10px]">
-                                <img class="h-[50px] w-[50px] rounded-full"
-                                    src="{{ asset('assets/image/developers/' . session('foto')) }}" alt="">
+                                <img class="h-[50px] w-[50px] rounded-full object-cover"
+                                    src="@userPhoto(session('foto'))" alt="">
                             </div>
                         </a>
                     </div>
@@ -65,7 +65,7 @@
                             @foreach ($user_baru_terdaftar as $user)
                                 <a href="{{ route('detail-pengguna.index', ['fullname' => $user->name]) }}" class="cursor-pointer flex hover:bg-gray-100 justify-between py-6 px-4 bg-white">
                                     <div class="flex items-center space-x-4">
-                                        <img src="{{ asset('assets/image/customers/profile/' . $user->foto) }}"
+                                        <img src="@userPhoto($user->foto)"
                                             class="rounded-full h-14 w-14" alt="">
                                         <div class="flex flex-col space-y-1">
                                             <span class="font-bold">{{ $user->name }}</span>

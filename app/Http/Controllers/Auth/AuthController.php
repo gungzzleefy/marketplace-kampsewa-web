@@ -43,6 +43,10 @@ class AuthController extends Controller
                 $request->session()->put('nama_lengkap', $user->name);
                 $request->session()->put('level', $user->type);
                 $request->session()->put('foto', $user->foto);
+                $request->session()->put('email', $user->email);
+                $request->session()->put('nomor_telephone', $user->nomor_telephone);
+                $request->session()->put('jenis_kelamin', $user->jenis_kelamin);
+                $request->session()->put('tanggal_lahir', $user->tanggal_lahir);
 
                 // todo cek user login sesuai dengan level dan dialihkan ke dashboard bersangkutan
                 if ($user->type == 1) {

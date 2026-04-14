@@ -12,7 +12,7 @@
     {{-- todo photo profile --}}
     <div class="_photo-btnedit pt-2 px-4 w-full flex items-start justify-between">
         <div class="_photo w-[100px] mt-[-60px] h-[100px] border-4 border-white rounded-full overflow-clip"><img
-                class="w-full object-cover" src="{{ asset('assets/image/customers/profile/' . $data->foto) }}" alt=""></div>
+                class="w-full object-cover" src="@userPhoto($data->foto)" alt=""></div>
         {{-- <div class="_btn-edit"><button class="px-4 py-2 gradient-1 text-[12px] font-bold cursor-pointer text-white rounded-full">Edit profile</button></div> --}}
     </div>
 

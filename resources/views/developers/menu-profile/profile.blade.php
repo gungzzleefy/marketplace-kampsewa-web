@@ -9,11 +9,11 @@
                 <div class="--foto-name-id flex flex-col gap-4 w-full bg-white shadow-box-shadow-11 rounded-[20px] p-4">
                     <div class="--image w-full flex justify-center">
                         <img class="object-cover border-2 border-solid border-white outline outline-[#5038ED] w-[80px] h-[80px] rounded-full"
-                            src="{{ asset('assets/image/developers/man.png') }}" alt="">
+                            src="@userPhoto(session('foto'))" alt="">
                     </div>
                     <div class="--name-id w-full text-center">
                         <p class="text-[14px] font-bold">{{ session('nama_lengkap') }}</p>
-                        <p class="text-[12px] font-medium text-gray-400 whitespace-nowrap">ID : user786958434657123</p>
+                        <p class="text-[12px] font-medium text-gray-400 whitespace-nowrap">ID : {{ session('id_user') }}</p>
                     </div>
                     <div class="--button w-full flex justify-center"><button
                             class="px-4 py-2 gradient-1 text-[12px] font-bold cursor-pointer text-white rounded-full">Edit
@@ -24,7 +24,7 @@
                             class="bi bi-telephone-fill"></i></div>
                     <div>
                         <p class="text-[12px] font-medium text-gray-400">Nomor Telepon:</p>
-                        <p class="text-[14px] font-bold">081331640909</p>
+                        <p class="text-[14px] font-bold">{{ session('nomor_telephone') ?? 'Belum di isi' }}</p>
                     </div>
                 </div>
                 <div
@@ -33,7 +33,9 @@
                             class="bi bi-balloon-fill"></i></div>
                     <div>
                         <p class="text-[12px] font-medium text-gray-400">Lahir:</p>
-                        <p class="text-[14px] font-bold whitespace-nowrap">20 November 2004</p>
+                        <p class="text-[14px] font-bold whitespace-nowrap">
+                            {{ session('tanggal_lahir') ? \Carbon\Carbon::parse(session('tanggal_lahir'))->translatedFormat('d F Y') : 'Belum di isi' }}
+                        </p>
                     </div>
                 </div>
                 <div class="--gender bg-white rounded-[20px] w-full flex gap-2 items-center p-4 shadow-box-shadow-11">
@@ -41,7 +43,7 @@
                             class="bi bi-gender-female"></i></div>
                     <div>
                         <p class="text-[12px] font-medium text-gray-400">Jenis Kelamin:</p>
-                        <p class="text-[14px] font-bold">Perempuan</p>
+                        <p class="text-[14px] font-bold">{{ session('jenis_kelamin') ?? 'Belum di isi' }}</p>
                     </div>
                 </div>
                 <div class="--level bg-white rounded-[20px] w-full flex gap-2 items-center p-4 shadow-box-shadow-11">
@@ -57,7 +59,7 @@
                             class="bi bi-envelope-at-fill"></i></div>
                     <div>
                         <p class="text-[12px] font-medium text-gray-400">Email:</p>
-                        <p class="text-[14px] font-bold">cha@gmail.com</p>
+                        <p class="text-[14px] font-bold">{{ session('email') ?? 'Belum di isi' }}</p>
                     </div>
                 </div>
                 <div class="--status bg-white rounded-[20px] w-full flex gap-2 items-center p-4 shadow-box-shadow-11">
@@ -65,7 +67,7 @@
                             class="bi bi-check2"></i></div>
                     <div>
                         <p class="text-[12px] font-medium text-gray-400">Status:</p>
-                        <p class="text-[14px] font-bold">Aktif</p>
+                        <p class="text-[14px] font-bold">{{ session('status') ?? 'Aktif' }}</p>
                     </div>
                 </div>
             </div>

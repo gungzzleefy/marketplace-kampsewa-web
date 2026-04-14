@@ -132,7 +132,7 @@
                                             <div class="_image-name-kota flex gap-2 items-center">
                                                 <div class="_image">
                                                     <img class="object-cover w-[70px] h-[70px] rounded-[15px]"
-                                                        src="{{ asset('assets/image/customers/profile/' . $item->foto) }}"
+                                                        src="@userPhoto($item->foto)"
                                                         alt="">
                                                 </div>
                                                 <div class="_name-kota flex flex-col gap-1">
@@ -183,7 +183,7 @@
                                         <div class="_image-name-kota flex gap-2 items-center">
                                             <div class="_image">
                                                 <img class="object-cover w-[70px] h-[70px] rounded-[15px]"
-                                                    src="{{ asset('assets/image/customers/profile/' . $item->foto) }}"
+                                                    src="@userPhoto($item->foto)"
                                                     alt="">
                                             </div>
                                             <div class="_name-kota flex flex-col gap-1">

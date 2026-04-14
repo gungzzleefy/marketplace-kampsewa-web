@@ -35,14 +35,14 @@
                 <a href="#"><i class="typcn typcn-messages"></i></a>
             </div><!-- az-header-message -->
             <div class="dropdown az-profile-menu">
-                <a href="" class="az-img-user"><img src="{{ asset('assets/image/customers/profile/' . session('foto')) }}" alt=""></a>
+                <a href="" class="az-img-user"><img src="@userPhoto(session('foto'))" alt=""></a>
                 <div class="dropdown-menu">
                     <div class="az-dropdown-header d-sm-none">
                         <a href="" class="az-header-arrow"><i class="icon ion-md-arrow-back"></i></a>
                     </div>
                     <div class="az-header-profile">
                         <div class="az-img-user">
-                            <img src="{{ asset('assets/image/customers/profile/' . session('foto')) }}" alt="">
+                            <img src="@userPhoto(session('foto'))" alt="">
                         </div><!-- az-img-user -->
                         <h6>{{ session('nama_lengkap') }}</h6>
                         <span>Customer</span>

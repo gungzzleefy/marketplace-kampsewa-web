@@ -32,7 +32,7 @@
                             <div class="--foto-name-nomor-jenis-kalmin flex items-center justify-between">
                                 <div class="--foto-name flex items-center gap-2">
                                     <img class="min-w-[40px] min-h-[40px] rounded-lg max-w-[60px] max-h-[60px] object-cover"
-                                        src="{{ asset('assets/image/customers/profile/' . $data->foto) }}" alt="">
+                                        src="@userPhoto($data->foto)" alt="">
                                     <div class="--name font-medium">
                                         <p class="xl:text-[14px] text-gray-300">Nama Lengkap:</p>
                                         <p class="xl:text-[16px]">{{ $data->name }}</p>
