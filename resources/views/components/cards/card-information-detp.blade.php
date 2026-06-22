@@ -1,66 +1,254 @@
-<div class="_component-information w-full gap-3 grid grid-cols-3">
+<div class="flex flex-col gap-5">
 
-    {{-- todo card jumlah transaksi dilakukan --}}
-    <div
-        class="_card-jumlah-transaksi-dilakukan shadow-box-shadow-46 cursor-pointer hover:shadow-box-shadow-7 flex flex-col gap-2 relative p-4 bg-gradient-to-tl to-[#9BEAC6] from-[#9FE9C5] w-full rounded-[20px]">
-        <div class="_heading flex items-center justify-between">
-            <div class="font-bold text-[#343535] text-[18px]">Jumlah Transaksi Sewa & Sewakan</div>
+    {{-- Statistic Cards --}}
+    <div class="grid grid-cols-1 gap-4 md:grid-cols-3">
+
+        {{-- Total Produk --}}
+        <div
+            class="rounded-[26px] border border-slate-200 bg-white p-5 shadow-sm transition hover:-translate-y-0.5 hover:shadow-xl hover:shadow-slate-200/70">
+            <div class="mb-4 flex h-12 w-12 items-center justify-center rounded-2xl bg-[#5038ED]/10 text-[#5038ED]">
+                <i class="fi fi-rr-box-open text-xl"></i>
+            </div>
+
+            <p class="text-sm font-bold text-slate-400">
+                Barang Disewakan
+            </p>
+
+            <p class="mt-2 text-3xl font-extrabold text-[#19191B]">
+                {{ $data->total_product ?? 0 }}
+            </p>
+
+            <p class="mt-2 text-sm font-medium leading-6 text-slate-500">
+                Total produk yang diposting oleh customer.
+            </p>
         </div>
-        <div class="_body w-full flex flex-col gap-2">
-            <div class="_jumlah-transaksi-sewa">
-                <p class="font-medium text-[16px] text-[#343535]">Sewa</p>
-                <p class="text-[14px] font-medium text-[#343535]">43 Transaksi</p>
+
+        {{-- Feedback Dibalas --}}
+        <div
+            class="rounded-[26px] border border-slate-200 bg-white p-5 shadow-sm transition hover:-translate-y-0.5 hover:shadow-xl hover:shadow-slate-200/70">
+            <div class="mb-4 flex h-12 w-12 items-center justify-center rounded-2xl bg-emerald-50 text-emerald-600">
+                <i class="fi fi-rr-comment-check text-xl"></i>
             </div>
-            <div class="_jumlah-transaksi-sewakan">
-                <p class="font-medium text-[16px] text-[#343535]">Sewakan</p>
-                <p class="text-[14px] font-medium text-[#343535]">Belum Ada Transaksis</p>
-            </div>
+
+            <p class="text-sm font-bold text-slate-400">
+                Feedback Dibalas
+            </p>
+
+            <p class="mt-2 text-3xl font-extrabold text-[#19191B]">
+                {{ $feedback_dibalas ?? 0 }}
+            </p>
+
+            <p class="mt-2 text-sm font-medium leading-6 text-slate-500">
+                Feedback customer yang sudah mendapatkan balasan.
+            </p>
         </div>
-        <div class="_footer border-t-2 border-black">
-            <div class="_user-terkait justify-end gap-1 flex mt-4 items-center">
-                @for ($i = 1; $i <= 2; $i++)
-                    <img class="rounded-full w-[35px] h-[35px] object-cover"
-                        src="{{ asset('assets/image/prabowo.jpg') }}" alt="">
-                @endfor
-                <div
-                    class="w-[35px] h-[35px] bg-[#323333] rounded-full flex justify-center items-center text-white text-[12px]">
-                    76+</div>
+
+        {{-- Feedback Belum Dibalas --}}
+        <div
+            class="rounded-[26px] border border-slate-200 bg-white p-5 shadow-sm transition hover:-translate-y-0.5 hover:shadow-xl hover:shadow-slate-200/70">
+            <div class="mb-4 flex h-12 w-12 items-center justify-center rounded-2xl bg-red-50 text-red-500">
+                <i class="fi fi-rr-comment-exclamation text-xl"></i>
             </div>
+
+            <p class="text-sm font-bold text-slate-400">
+                Belum Dibalas
+            </p>
+
+            <p class="mt-2 text-3xl font-extrabold text-[#19191B]">
+                {{ $feedback_belum_dibalas ?? 0 }}
+            </p>
+
+            <p class="mt-2 text-sm font-medium leading-6 text-slate-500">
+                Feedback yang masih perlu ditindaklanjuti.
+            </p>
         </div>
     </div>
 
-    {{-- todo card jumlah barang diposting --}}
-    <div
-        class="_card-jumlah-barang-diposting cursor-pointer flex flex-col gap-2 p-4 shadow-box-shadow-46 bg-gradient-to-tr to-[#F6AEE4] hover:shadow-box-shadow-7 from-[#F1C0F5] rounded-[20px]">
-        <div class="_header">
-            <h1 class="text-[18px] font-bold text-[#343535]">Jumlah Barang Disewakan</h1>
+    {{-- Feedback Terbaru --}}
+<div class="rounded-[28px] border border-slate-200 bg-white p-5 shadow-sm">
+    <div class="mb-5 flex flex-col gap-2 sm:flex-row sm:items-center sm:justify-between">
+        <div>
+            <h2 class="text-lg font-extrabold text-[#19191B]">
+                Feedback & Riwayat Chat
+            </h2>
+            <p class="mt-1 text-sm font-medium text-slate-500">
+                Semua feedback customer ditampilkan dalam satu riwayat percakapan.
+            </p>
         </div>
-        <div class="_body flex justify-start">
-            <p class="{{ $data->total_product ? 'text-[40px] text-[#343535]' : 'text-[14px] text-red-500' }} font-bold">{{ $data->total_product ? $data->total_product : 'Belum Diisi' }}</p>
-        </div>
-        <div class="_footer">
-            <p class="text-[14px] font-medium text-[#343535]">Total barang yang diposting dari meja, kursi
-                dan lainnya.</p>
-        </div>
+
+        <span class="w-fit rounded-full bg-[#5038ED]/10 px-3 py-1 text-xs font-bold text-[#5038ED]">
+            {{ $total_feedback ?? 0 }} Feedback
+        </span>
     </div>
 
-    {{-- todo card --}}
-    <div
-        class="_card-test flex flex-col gap-2 bg-gradient-to-tr to-[#A5E2F9] rounded-[20px] p-4 shadow-box-shadow-46 hover:shadow-box-shadow-7 cursor-pointer from-[#A3E2FE]">
-        <div class="_header">
-            <p class="text-[18px] font-bold text-[#343535]">Feedback Terbaru Pengguna</p>
+    @if ($feedback_terbaru->isNotEmpty())
+        <div class="max-h-[560px] space-y-5 overflow-y-auto pr-2 custom-chat-scroll">
+
+            @foreach ($feedback_terbaru as $feedback)
+                @php
+                    $hasAdminReply = $feedback->messages->contains(function ($message) {
+                        return $message->sender_type === 'admin';
+                    });
+
+                    $messages = collect();
+
+                    // Feedback utama dari tabel feedback tetap dianggap sebagai chat pertama customer
+                    if (!empty($feedback->deskripsi)) {
+                        $messages->push((object) [
+                            'sender_type' => 'customer',
+                            'message' => $feedback->deskripsi,
+                            'created_at' => $feedback->created_at,
+                            'is_feedback_awal' => true,
+                        ]);
+                    }
+
+                    // Tambahkan chat dari feedback_messages
+                    foreach ($feedback->messages as $message) {
+                        $isDuplicateFeedbackAwal =
+                            $message->sender_type === 'customer' &&
+                            trim($message->message) === trim($feedback->deskripsi ?? '');
+
+                        if (!$isDuplicateFeedbackAwal) {
+                            $message->is_feedback_awal = false;
+                            $messages->push($message);
+                        }
+                    }
+
+                    $messages = $messages->sortBy('created_at')->values();
+                @endphp
+
+                {{-- Separator feedback --}}
+                <div class="flex items-center gap-3">
+                    <div class="h-px flex-1 bg-slate-200"></div>
+
+                    <div class="flex flex-wrap items-center justify-center gap-2 rounded-full bg-slate-50 px-3 py-1.5">
+                        <span
+                            class="rounded-full px-2.5 py-1 text-[11px] font-bold
+                            {{ $feedback->kriteria == 'Sangat Baik' ? 'bg-emerald-50 text-emerald-600' : '' }}
+                            {{ $feedback->kriteria == 'Baik' ? 'bg-blue-50 text-blue-600' : '' }}
+                            {{ $feedback->kriteria == 'Cukup' ? 'bg-yellow-50 text-yellow-700' : '' }}
+                            {{ $feedback->kriteria == 'Kurang' ? 'bg-orange-50 text-orange-600' : '' }}
+                            {{ $feedback->kriteria == 'Sangat Kurang' ? 'bg-red-50 text-red-600' : '' }}"
+                        >
+                            {{ $feedback->kriteria }}
+                        </span>
+
+                        <span
+                            class="rounded-full px-2.5 py-1 text-[11px] font-bold
+                            {{ $feedback->status == 'Dibalas' ? 'bg-emerald-50 text-emerald-600' : 'bg-red-50 text-red-500' }}"
+                        >
+                            {{ $feedback->status }}
+                        </span>
+
+                        <span class="text-[11px] font-bold text-slate-400">
+                            {{ $feedback->created_at->diffForHumans() }}
+                        </span>
+                    </div>
+
+                    <div class="h-px flex-1 bg-slate-200"></div>
+                </div>
+
+                {{-- Bubble chat --}}
+                <div class="space-y-3">
+                    @foreach ($messages as $message)
+                        <div class="flex {{ $message->sender_type == 'admin' ? 'justify-end' : 'justify-start' }}">
+                            <div
+                                class="max-w-[92%] rounded-2xl px-4 py-3 shadow-sm sm:max-w-[78%]
+                                {{ $message->sender_type == 'admin'
+                                    ? 'rounded-br-md bg-[#5038ED] text-white'
+                                    : 'rounded-bl-md border border-slate-200 bg-white text-slate-700' }}"
+                            >
+                                <div class="mb-1 flex flex-wrap items-center gap-2">
+                                    <span
+                                        class="text-xs font-extrabold
+                                        {{ $message->sender_type == 'admin' ? 'text-white/90' : 'text-[#5038ED]' }}"
+                                    >
+                                        {{ $message->sender_type == 'admin' ? 'Admin / Developer' : 'Customer' }}
+                                    </span>
+
+                                    @if (!empty($message->is_feedback_awal))
+                                        <span
+                                            class="rounded-full px-2 py-0.5 text-[10px] font-bold
+                                            {{ $message->sender_type == 'admin'
+                                                ? 'bg-white/15 text-white'
+                                                : 'bg-[#5038ED]/10 text-[#5038ED]' }}"
+                                        >
+                                            Feedback Awal
+                                        </span>
+                                    @endif
+
+                                    <span
+                                        class="text-[11px] font-medium
+                                        {{ $message->sender_type == 'admin' ? 'text-white/60' : 'text-slate-400' }}"
+                                    >
+                                        {{ $message->created_at ? $message->created_at->diffForHumans() : '-' }}
+                                    </span>
+                                </div>
+
+                                <p class="text-sm font-medium leading-6">
+                                    {{ $message->message }}
+                                </p>
+                            </div>
+                        </div>
+                    @endforeach
+
+                    {{-- Kalau feedback ini belum ada balasan admin --}}
+                    @if (!$hasAdminReply)
+                        <div class="flex justify-end">
+                            <div class="max-w-[92%] rounded-2xl rounded-br-md border border-[#5038ED]/15 bg-[#5038ED]/10 px-4 py-3 text-[#5038ED] shadow-sm sm:max-w-[78%]">
+                                <div class="mb-1 flex flex-wrap items-center gap-2">
+                                    <span class="text-xs font-extrabold">
+                                        Admin / Developer
+                                    </span>
+
+                                    <span class="rounded-full bg-white/70 px-2 py-0.5 text-[10px] font-bold">
+                                        Belum Dibalas
+                                    </span>
+                                </div>
+
+                                <p class="text-sm font-medium leading-6">
+                                    Belum dibalas admin.
+                                </p>
+                            </div>
+                        </div>
+                    @endif
+                </div>
+            @endforeach
         </div>
-        <div class="_body">
-            <div class="flex items-center gap-1">
-                <div class="mt-1"><i class="fi fi-rr-memo-pad"></i></div>
-                <div class="text-[14px] font-medium text-[#343535]">Catatan : </div>
+    @else
+        <div class="rounded-2xl border border-dashed border-slate-300 bg-slate-50 p-6 text-center">
+            <div class="mx-auto mb-3 flex h-12 w-12 items-center justify-center rounded-2xl bg-white text-slate-400">
+                <i class="fi fi-rr-comment-alt text-xl"></i>
             </div>
-            <div>
-                <p class="text-[14px] font-medium text-[#343535] line-clamp-4">Aplikasinya bagus tetapi untuk sistem masih harus diperbaiki lagi!</p>
-            </div>
+
+            <p class="text-sm font-bold text-[#19191B]">
+                Belum ada feedback
+            </p>
+
+            <p class="mt-1 text-sm font-medium text-slate-500">
+                Customer ini belum pernah mengirim feedback.
+            </p>
         </div>
-        <div class="_footer">
-            <p class="text-[14px] font-bold text-blue-700 underline">Lihat Lainnya!</p>
-        </div>
-    </div>
+    @endif
+</div>
+
+<style>
+    .custom-chat-scroll::-webkit-scrollbar {
+        width: 6px;
+    }
+
+    .custom-chat-scroll::-webkit-scrollbar-track {
+        background: #F1F5F9;
+        border-radius: 999px;
+    }
+
+    .custom-chat-scroll::-webkit-scrollbar-thumb {
+        background: #CBD5E1;
+        border-radius: 999px;
+    }
+
+    .custom-chat-scroll::-webkit-scrollbar-thumb:hover {
+        background: #5038ED;
+    }
+</style>
 </div>

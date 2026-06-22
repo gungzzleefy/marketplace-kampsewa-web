@@ -124,14 +124,27 @@ Route::middleware('auth')->group(function () {
         */
 
         Route::prefix('kelola-pengguna')->group(function () {
-            Route::get('/', [KelolaPenggunaMenuController::class, 'index'])->name('kelola-pengguna.index');
+            Route::get('/', [KelolaPenggunaMenuController::class, 'index'])
+                ->name('kelola-pengguna.index');
 
-            Route::prefix('detail-pengguna/{fullname}')->name('detail-pengguna.')->controller(DetailPenggunaController::class)->group(function () {
-                Route::get('/', 'index')->name('index');
-                Route::get('/produk-disewakan', 'showProdukDisewakan')->name('produk-disewakan');
-                Route::get('/produk-disewakan/detail-produk/{namaproduk}', 'showDetailProdukDisewakan')->name('detail-produk-disewakan');
-                Route::get('/detail-produk-sedang-disewa/{namaproduk}', 'showDetailProdukSedangDisewa')->name('detail-produk-sedang-disewa');
-            });
+            Route::post('/', [KelolaPenggunaMenuController::class, 'store'])
+                ->name('kelola-pengguna.store');
+
+            Route::delete('/delete-selected', [KelolaPenggunaMenuController::class, 'bulkDestroy'])
+                ->name('kelola-pengguna.bulk-destroy');
+
+            Route::delete('/{id}', [KelolaPenggunaMenuController::class, 'destroy'])
+                ->name('kelola-pengguna.destroy');
+
+            Route::prefix('detail-pengguna/{fullname}')
+                ->name('detail-pengguna.')
+                ->controller(DetailPenggunaController::class)
+                ->group(function () {
+                    Route::get('/', 'index')->name('index');
+                    Route::get('/produk-disewakan', 'showProdukDisewakan')->name('produk-disewakan');
+                    Route::get('/produk-disewakan/detail-produk/{namaproduk}', 'showDetailProdukDisewakan')->name('detail-produk-disewakan');
+                    Route::get('/detail-produk-sedang-disewa/{namaproduk}', 'showDetailProdukSedangDisewa')->name('detail-produk-sedang-disewa');
+                });
         });
 
         Route::get('/informasi-pengguna', [InformasiPenggunaController::class, 'index'])

@@ -1,66 +1,53 @@
 @extends('layouts.developers.ly-dashboard')
+
 @section('content')
-    {{-- ! main container  --}}
-    <div class="_main-container p-[30px] flex flex-col gap-8">
+    <div class="min-h-screen w-full bg-[#F6F7FB] px-4 py-5 sm:px-6 lg:px-8">
 
-        {{-- ! container component card profile and card information --}}
-        <div class="_component-card-profile-and-card-information w-full grid gap-4 grid-cols-[1fr_2fr]">
+        {{-- Header --}}
+        <div class="mb-6 flex flex-col gap-4 rounded-[28px] bg-gradient-to-br from-[#19191B] via-[#24243A] to-[#5038ED] p-5 text-white shadow-lg sm:p-7 lg:flex-row lg:items-center lg:justify-between">
+            <div>
+                <a href="{{ route('kelola-pengguna.index') }}"
+                    class="mb-4 inline-flex items-center gap-2 rounded-full bg-white/15 px-3 py-1.5 text-xs font-bold text-white backdrop-blur transition hover:bg-white/25">
+                    <i class="fi fi-rr-arrow-small-left text-base"></i>
+                    <span>Kembali</span>
+                </a>
 
-            {{-- ! card profile --}}
-            @include('components.cards.card-profile-detail-pengguna')
+                <h1 class="text-2xl font-bold tracking-tight sm:text-3xl">
+                    Detail Pengguna
+                </h1>
 
-            {{-- ! card information --}}
-            <div class="_card-information w-full flex flex-col gap-4 rounded-[20px]">
+                <p class="mt-2 max-w-2xl text-sm leading-6 text-white/75">
+                    Lihat informasi customer, produk yang disewakan, dan feedback terbaru dari pengguna.
+                </p>
+            </div>
 
-                {{-- ! container card count information --}}
-                @include('components.cards.card-information-detp')
+            <div class="grid grid-cols-2 gap-3 sm:flex">
+                <div class="rounded-2xl bg-white/15 px-4 py-3 backdrop-blur">
+                    <p class="text-xs text-white/70">Total Produk</p>
+                    <p class="mt-1 text-xl font-bold">{{ $data->total_product ?? 0 }}</p>
+                </div>
 
-                {{-- ! container card produk yang disewakan --}}
-                @include('components.cards.card-produk-disewakan-detp')
+                <div class="rounded-2xl bg-white/15 px-4 py-3 backdrop-blur">
+                    <p class="text-xs text-white/70">Total Feedback</p>
+                    <p class="mt-1 text-xl font-bold">{{ $total_feedback ?? 0 }}</p>
+                </div>
             </div>
         </div>
 
-        {{-- ! container card produk sedang disewa --}}
-        {{-- <div class="_produk-sedang-disewa flex flex-col gap-8">
-            <div class="_title">
-                <h1 class="text-[24px] font-bold">Produk Sedang Disewa</h1>
-                <p class="text-[14px]">Produk sedang disewa lengkap dengan toko yang sedang disewa.</p>
-            </div>
-            <div class="_wrapper-card grid grid-cols-4 gap-8">
-                @for ($i = 1; $i <= 8; $i++)
-                    @include('components.cards.card-produk-disewa-detp')
-                @endfor
-            </div>
-        </div> --}}
+        {{-- Main Content --}}
+        <div class="grid grid-cols-1 gap-5 xl:grid-cols-[380px_1fr]">
 
-        {{-- ! container card produk yang sedang disewa oleh customer lain --}}
-        {{-- <div class="_produk-sedang-disewa-orang-lain flex flex-col gap-8">
-            <div class="_title">
-                <h1 class="text-[24px] font-bold">Produk Yang Disewa Customer Lain</h1>
-                <p class="text-[14px]">Berikut daftar produk yang sedang disewa oleh customer lain.</p>
+            {{-- Left: Profile --}}
+            <div class="xl:sticky xl:top-5 xl:h-fit">
+                @include('components.cards.card-profile-detail-pengguna')
             </div>
-            <div class="_wrapper-card grid grid-cols-4 gap-8">
-                @for ($i = 1; $i <= 8; $i++)
-                    @include('components.cards.card-produk-sedangdisewa-custlain-detp')
-                @endfor
-            </div>
-        </div> --}}
 
-        {{-- ! container card riwayat produk yang disewakan dan produk yang disewa --}}
-        {{-- <div class="_riwayat-transaksi-sewa-dan-menyewakan flex flex-col gap-8">
-            <div class="_wraper-riwayat-transaksi-sewa-transaksi-menyewakan grid grid-cols-2 gap-x-4">
-                @include('components.cards.card-riwtransaksi-sewa-detp')
-                @include('components.cards.card-riwtransaksi-menyewakan-detp')
+            {{-- Right: Information --}}
+            <div class="flex flex-col gap-5">
+                @include('components.cards.card-information-detp')
+
+                @include('components.cards.card-produk-disewakan-detp')
             </div>
-        </div> --}}
+        </div>
     </div>
-    @include('sweetalert::alert')
-    <script>
-        // filter untuk riwayat sewa
-        const dropdownButton = document.getElementById('dropdown-button');
-        const dropdownMenu = document.getElementById('dropdown-menu');
-        dropdownButton.addEventListener('click', () => {
-            dropdownMenu.classList.toggle('hidden');
-        });
-    </script>
 @endsection

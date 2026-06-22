@@ -1,179 +1,614 @@
 @extends('layouts.developers.ly-dashboard')
+
 @section('content')
-    {{-- todo modals tambah customer --}}
+    {{-- Modal tambah customer --}}
     @include('components.modals.add-customer')
 
-    <div class="_container p-[20px] w-full">
+    <div class="min-h-screen w-full bg-[#F6F7FB] px-4 py-5 sm:px-6 lg:px-8">
 
-        {{-- todo judul --}}
-        <div class="_wrapper-judul mb-6">
+        {{-- Header --}}
+        <div
+            class="mb-6 overflow-hidden rounded-[28px] bg-gradient-to-br from-[#19191B] via-[#24243A] to-[#12A4ED] p-5 text-white shadow-lg sm:p-7">
+            <div class="flex flex-col gap-5 lg:flex-row lg:items-center lg:justify-between">
 
-            {{-- todo judul --}}
-            <h1 class="text-[24px] font-bold text-[#19191B] capitalize">Data List Pengguna</h1>
-        </div>
+                <div>
+                    <p class="mb-2 w-fit rounded-full bg-white/15 px-3 py-1 text-xs font-semibold backdrop-blur">
+                        Kelola Pengguna
+                    </p>
 
-        {{-- todo wrapper total search filter --}}
-        <div class="flex w-full justify-between items-center mb-4">
+                    <h1 class="text-2xl font-bold tracking-tight sm:text-3xl">
+                        Data List Pengguna
+                    </h1>
 
-            {{-- todo total users --}}
-            <div class="_total">
-                <p class="text-[#19191b] text-[14px] font-bold">{{ $get_total_user }} Customer</p>
-            </div>
-
-            {{-- todo wrapper search filter --}}
-            <form method="GET" class="_search-filter flex gap-[10px] items-center">
-                {{-- todo search --}}
-                <div class="_search">
-                    <div class="form" method="GET">
-                        <label for="search" class="bg-white  rounded-full">
-                            <input class="input" type="text" placeholder="Cari kata" name="cari_customer" id="search"
-                                autofocus="true" value="{{ $cari_customer }}">
-                            <div class="fancy-bg"></div>
-                            <div class="search">
-                                <svg viewBox="0 0 24 24" aria-hidden="true"
-                                    class="r-14j79pv r-4qtqp9 r-yyyyoo r-1xvli5t r-dnmrzs r-4wgw6l r-f727ji r-bnwqim r-1plcrui r-lrvibr">
-                                    <g>
-                                        <path
-                                            d="M21.53 20.47l-3.66-3.66C19.195 15.24 20 13.214 20 11c0-4.97-4.03-9-9-9s-9 4.03-9 9 4.03 9 9 9c2.215 0 4.24-.804 5.808-2.13l3.66 3.66c.147.146.34.22.53.22s.385-.073.53-.22c.295-.293.295-.767.002-1.06zM3.5 11c0-4.135 3.365-7.5 7.5-7.5s7.5 3.365 7.5 7.5-3.365 7.5-7.5 7.5-7.5-3.365-7.5-7.5z">
-                                        </path>
-                                    </g>
-                                </svg>
-                            </div>
-                        </label>
-                    </div>
+                    <p class="mt-2 max-w-2xl text-sm leading-6 text-white/75">
+                        Pantau data customer, jumlah produk yang disewakan, informasi kontak, dan detail akun pengguna.
+                    </p>
                 </div>
 
-                {{-- todo filter --}}
-                <div class="_filter">
-                    <div class="flex items-center justify-center">
-                        <div class="relative inline-block text-left">
-                            <select id="filter" name="filter"
-                                class="origin-top-right z-10 mt-2 w-48 rounded-full px-4 py-2  text-[14px] mb-2 bg-white ring-1 ring-black ring-opacity-5">
-                                <option value="terbaru" {{ request('filter') == 'terbaru' ? 'selected' : '' }}>Terbaru
-                                </option>
-                                <option value="terlama" {{ request('filter') == 'terlama' ? 'selected' : '' }}>Terlama
-                                </option>
-                                <option value="punya_produk" {{ request('filter') == 'punya_produk' ? 'selected' : '' }}>Punya Produk
-                                </option>
-                            </select>
-                        </div>
+                <div class="grid grid-cols-2 gap-3 sm:flex sm:items-center">
+                    <div class="rounded-2xl bg-white/15 px-4 py-3 backdrop-blur">
+                        <p class="text-xs text-white/70">Total Customer</p>
+                        <p class="mt-1 text-xl font-bold">{{ $get_total_user }}</p>
                     </div>
-                </div>
 
-                {{-- todo untuk tombol tambah data --}}
-                <div class="_btn-tambah-data">
-                    <button type="submit" class="px-4 py-2 gradient-1 cursor-pointer text-white rounded-full">
-                        <div class="_icon-plus"></div>
-                        <span>Cari</span>
+                    <button type="button" onclick="modalHandler(true)"
+                        class="inline-flex items-center justify-center gap-2 rounded-2xl bg-white px-4 py-3 text-sm font-bold text-[#19191B] shadow-md transition hover:-translate-y-0.5 hover:bg-slate-100 active:scale-[0.98]">
+                        <i class="fi fi-rr-plus-small text-base"></i>
+                        <span>Tambah</span>
                     </button>
                 </div>
+            </div>
+        </div>
+
+        {{-- Search & Filter --}}
+        {{-- Search, Filter, Bulk Delete --}}
+        <div class="mb-5 rounded-[24px] border border-slate-200 bg-white p-4 shadow-sm sm:p-5">
+            <form id="customerFilterForm" method="GET" action="{{ route('kelola-pengguna.index') }}"
+                class="grid grid-cols-1 gap-3 lg:grid-cols-[1fr_220px_auto_auto_auto] lg:items-center">
+                {{-- Search --}}
+                <div class="relative">
+                    <div class="pointer-events-none absolute inset-y-0 left-4 flex items-center text-slate-400">
+                        <i class="fi fi-rr-search text-sm"></i>
+                    </div>
+
+                    <input type="text" name="cari_customer" id="search" value="{{ $cari_customer }}"
+                        placeholder="Cari nama, email, atau nomor telepon..." autocomplete="off"
+                        class="h-12 w-full rounded-2xl border border-slate-200 bg-slate-50 pl-11 pr-4 text-sm font-medium text-[#19191B] outline-none transition placeholder:text-slate-400 focus:border-[#12A4ED] focus:bg-white focus:ring-4 focus:ring-[#12A4ED]/10">
+                </div>
+
+                {{-- Filter --}}
+                <div class="relative">
+                    <select id="filter" name="filter"
+                        class="h-12 w-full appearance-none rounded-2xl border border-slate-200 bg-slate-50 px-4 pr-10 text-sm font-semibold text-[#19191B] outline-none transition focus:border-[#12A4ED] focus:bg-white focus:ring-4 focus:ring-[#12A4ED]/10">
+                        <option value="terbaru" {{ request('filter') == 'terbaru' ? 'selected' : '' }}>
+                            Terbaru
+                        </option>
+                        <option value="terlama" {{ request('filter') == 'terlama' ? 'selected' : '' }}>
+                            Terlama
+                        </option>
+                        <option value="punya_produk" {{ request('filter') == 'punya_produk' ? 'selected' : '' }}>
+                            Punya Produk
+                        </option>
+                    </select>
+
+                    <div class="pointer-events-none absolute inset-y-0 right-4 flex items-center text-slate-400">
+                        <i class="fi fi-rr-angle-small-down"></i>
+                    </div>
+                </div>
+
+                {{-- Pilih Semua --}}
+                <label
+                    class="flex h-12 cursor-pointer items-center justify-center gap-2 rounded-2xl border border-slate-200 bg-white px-4 text-sm font-bold text-slate-700 transition hover:bg-slate-50">
+                    <span class="relative flex items-center">
+                        <input type="checkbox" id="checkAllUsers"
+                            class="peer h-5 w-5 cursor-pointer appearance-none rounded-lg border-2 border-slate-300 bg-white transition-all checked:border-[#5038ED] checked:bg-[#5038ED]">
+
+                        <span
+                            class="pointer-events-none absolute left-1/2 top-1/2 hidden -translate-x-1/2 -translate-y-1/2 text-white peer-checked:block">
+                            <svg xmlns="http://www.w3.org/2000/svg" class="h-3.5 w-3.5" viewBox="0 0 20 20"
+                                fill="currentColor">
+                                <path fill-rule="evenodd"
+                                    d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z"
+                                    clip-rule="evenodd" />
+                            </svg>
+                        </span>
+                    </span>
+
+                    <span>Pilih Semua</span>
+                </label>
+
+                {{-- Delete Selected --}}
+                <button type="submit" form="bulkDeleteForm" id="bulkDeleteButton" disabled
+                    class="inline-flex h-12 items-center justify-center gap-2 rounded-2xl bg-red-500 px-5 text-sm font-bold text-white shadow-md shadow-red-500/20 transition hover:-translate-y-0.5 hover:bg-red-600 active:scale-[0.98] disabled:cursor-not-allowed disabled:bg-slate-300 disabled:shadow-none disabled:hover:translate-y-0">
+                    <i class="fi fi-rr-trash text-sm"></i>
+                    <span>Delete Selected</span>
+                    <span id="selectedCount" class="hidden rounded-full bg-white/20 px-2 py-0.5 text-xs">0</span>
+                </button>
+
+                {{-- Reset --}}
+                <a href="{{ route('kelola-pengguna.index') }}"
+                    class="inline-flex h-12 items-center justify-center gap-2 rounded-2xl border border-slate-200 bg-white px-5 text-sm font-bold text-slate-700 transition hover:bg-slate-50 active:scale-[0.98]">
+                    <i class="fi fi-rr-refresh text-sm"></i>
+                    <span>Reset</span>
+                </a>
+            </form>
+
+            <form id="bulkDeleteForm" action="{{ route('kelola-pengguna.bulk-destroy') }}" method="POST">
+                @csrf
+                @method('DELETE')
             </form>
         </div>
 
-        {{-- todo wrapper card --}}
-        <div class="_wrapper-card flex mb-4 flex-col gap-3">
-            {{-- todo card list --}}
-            @foreach ($data as $item)
-                <div
-                    class="_card-pengguna gap-4 hover:shadow-box-shadow-7 grid grid-cols-4 w-full justify-between items-center bg-white rounded-[20px] p-[20px]">
-                    <div class="_photo-name-address flex items-center gap-[10px]">
-                        <div class="_photo relative overflow-hidden w-[60px] h-[60px] rounded-[20px]">
-                            <img class="w-full object-cover"
-                                src="@userPhoto($item->foto)" alt="">
-                        </div>
-                        <div class="_name-address">
-                            <div class="_name font-bold text-[#19191b] line-clamp-1">{{ $item->name }}</div>
-                            <div class="_address text-gray-400 font-normal text-[12px] line-clamp-1">
-                            Belum di isi.
-                            </div>
-                            <div class="_level w-fit mt-2">
-                                <p class="bg-[#FDEAEE] text-[10px] font-bold rounded-full text-[#F5325C] text-center p-1">
-                                    Customer</p>
-                            </div>
-                        </div>
-                    </div>
-                    <div class="_number-createdat">
-                        <div class="_number flex flex-col">
-                            <span class="text-[19191b] font-medium">Customer</span>
-                            <span class="text-[12px] font-medium text-gray-400">{{ $item->nomor_telephone }}</span>
-                        </div>
-                        <div class="_createdat text-[12px] mt-2">
-                            <span class="font-medium text-[#19191B]">Bergabung:</span>
-                            <span
-                                class="font-normal text-gray-400 border-dashed border-b-2">{{ Carbon\Carbon::parse($item->created_at)->diffForHumans() }}</span>
-                        </div>
-                    </div>
-                    <div class="_total-product">
-                        <p class="w-[80%] font-medium"><i class="mt-1 fi fi-rr-box-open"></i>
-                            {{ $item->total_product ? $item->total_product . ' ' . 'Total produk disewakan' : 'Belum ada produk.' }}
-                        </p>
-                        <p class="text-[12px] text-gray-400 font-medium mt-1"><a
-                                href=""><u>{{ $item->total_product ? 'Lihat semua produk' : '' }}</u></a></p>
-                    </div>
-                    <div class="_gender-iconmore flex justify-end w-full items-center gap-8">
-                        <div
-                            class="_gender flex p-3 rounded-r-full rounded-bl-full border-solid border-[2px] items-center gap-2">
-                            <div class="_circle w-[12px] h-[12px] rounded-full bg-[#12A4ED]"></div>
-                            <p class="text-[14px] font-medium text-[#19191b]">
-                                {{ $item->jenis_kelamin ? $item->jenis_kelamin : 'Belum di isi.' }}</p>
-                        </div>
-                        <div class="_moreicon btn-more relative cursor-pointer">
-                            <div class="relative"><i class="text-[20px] text-gray-400 fi fi-rr-rectangle-list"></i>
-                            </div>
-                            {{-- Dropdown menu --}}
-                            <div class="dropdown-menu right-0 z-10 hidden absolute bg-white shadow-md rounded-md py-2 px-3">
-                                {{-- Dropdown items --}}
-                                <a href="{{ route('detail-pengguna.index', ['fullname' => $item->name]) }}"
-                                    class="hover:text-[#12A4ED] dropdown-item flex gap-1 py-2">
-                                    <span class="mt-[0.15rem]"><i class="fi fi-rr-folder-open"></i></span>
-                                    <span>Detail</span>
-                                </a>
-                                <a href="#" class="hover:text-[#12A4ED] dropdown-item flex gap-1 py-2">
-                                    <span class="mt-[0.15rem]"><i class="fi fi-rr-trash"></i></span>
-                                    <span>Delete</span></a>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-            @endforeach
+        {{-- Info kecil --}}
+        <div class="mb-4 flex flex-col gap-2 sm:flex-row sm:items-center sm:justify-between">
+            <p class="text-sm font-semibold text-slate-600">
+                Menampilkan data customer
+            </p>
+
+            <p class="text-sm font-bold text-[#19191B]">
+                {{ $get_total_user }} Customer
+            </p>
         </div>
-        {{ $data->onEachSide(1)->links('components.paginate.custom-pagination') }}
+
+        {{-- List Card --}}
+        <div class="space-y-3">
+            @forelse ($data as $item)
+                <article
+                    class="user-card group relative z-0 overflow-visible rounded-[28px] border border-slate-200 bg-white p-4 shadow-sm transition-all duration-300 hover:z-10 hover:-translate-y-0.5 hover:border-[#12A4ED]/30 hover:shadow-xl hover:shadow-slate-200/70 sm:p-5">
+
+                    <div
+                        class="grid grid-cols-1 gap-4 lg:grid-cols-2 xl:grid-cols-[minmax(390px,1.75fr)_minmax(180px,0.85fr)_minmax(230px,1fr)_minmax(210px,0.85fr)] xl:items-center xl:gap-5">
+
+                        {{-- Profile --}}
+                        <div class="flex min-w-0 items-center gap-4 lg:col-span-2 xl:col-span-1">
+
+                            {{-- Custom Checkbox --}}
+                            <label class="flex h-16 w-10 shrink-0 cursor-pointer items-center justify-center">
+                                <span class="relative flex items-center">
+                                    <input type="checkbox" name="user_ids[]" value="{{ $item->user_id }}"
+                                        form="bulkDeleteForm"
+                                        class="user-checkbox peer h-5 w-5 cursor-pointer appearance-none rounded-lg border-2 border-slate-300 bg-white transition-all checked:border-[#5038ED] checked:bg-[#5038ED]">
+
+                                    <span
+                                        class="pointer-events-none absolute left-1/2 top-1/2 hidden -translate-x-1/2 -translate-y-1/2 text-white peer-checked:block">
+                                        <svg xmlns="http://www.w3.org/2000/svg" class="h-3.5 w-3.5" viewBox="0 0 20 20"
+                                            fill="currentColor">
+                                            <path fill-rule="evenodd"
+                                                d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z"
+                                                clip-rule="evenodd" />
+                                        </svg>
+                                    </span>
+                                </span>
+                            </label>
+
+                            {{-- Avatar --}}
+                            <div
+                                class="relative h-16 w-16 shrink-0 overflow-hidden rounded-2xl bg-slate-100 ring-4 ring-slate-50">
+                                <img src="@userPhoto($item->foto)" alt="Foto {{ $item->name }}"
+                                    class="h-full w-full object-cover">
+                            </div>
+
+                            {{-- Identity --}}
+                            <div class="min-w-0 flex-1">
+                                <div class="flex min-w-0 items-center gap-2">
+                                    <h2 class="min-w-0 truncate text-base font-bold text-[#19191B]">
+                                        {{ $item->name }}
+                                    </h2>
+
+                                    <span
+                                        class="shrink-0 rounded-full bg-[#FDEAEE] px-2.5 py-1 text-[11px] font-bold text-[#F5325C]">
+                                        Customer
+                                    </span>
+                                </div>
+
+                                <p class="mt-1 truncate text-sm font-medium text-slate-400">
+                                    {{ $item->email ?: 'Email belum di isi.' }}
+                                </p>
+
+                                <div class="mt-2 flex flex-wrap items-center gap-2">
+                                    <span
+                                        class="inline-flex min-w-[76px] shrink-0 items-center justify-center whitespace-nowrap rounded-full bg-slate-100 px-3 py-1 text-[11px] font-bold text-slate-500">
+                                        ID #{{ $item->user_id }}
+                                    </span>
+
+                                    <span
+                                        class="inline-flex min-w-0 items-center gap-1.5 text-xs font-semibold text-slate-500">
+                                        <i class="fi fi-rr-clock-three shrink-0 text-slate-400"></i>
+                                        <span class="truncate">
+                                            Bergabung {{ Carbon\Carbon::parse($item->created_at)->diffForHumans() }}
+                                        </span>
+                                    </span>
+                                </div>
+                            </div>
+                        </div>
+
+                        {{-- Contact --}}
+                        <div class="h-full rounded-2xl border border-slate-100 bg-slate-50 p-4">
+                            <p class="mb-2 text-xs font-bold uppercase tracking-wide text-slate-400">
+                                Kontak
+                            </p>
+
+                            <div class="flex items-start gap-3">
+                                <div
+                                    class="mt-0.5 flex h-9 w-9 shrink-0 items-center justify-center rounded-xl bg-white text-[#12A4ED] shadow-sm">
+                                    <i class="fi fi-rr-phone-call text-sm"></i>
+                                </div>
+
+                                <div class="min-w-0">
+                                    <p class="text-sm font-bold text-[#19191B]">
+                                        Nomor Telepon
+                                    </p>
+
+                                    <p class="truncate text-sm font-medium text-slate-500">
+                                        {{ $item->nomor_telephone ?: 'Belum di isi.' }}
+                                    </p>
+                                </div>
+                            </div>
+                        </div>
+
+                        {{-- Product --}}
+                        <div class="h-full rounded-2xl border border-slate-100 bg-slate-50 p-4">
+                            <p class="mb-2 text-xs font-bold uppercase tracking-wide text-slate-400">
+                                Produk
+                            </p>
+
+                            <div class="flex items-start gap-3">
+                                <div
+                                    class="mt-0.5 flex h-9 w-9 shrink-0 items-center justify-center rounded-xl bg-white text-[#12A4ED] shadow-sm">
+                                    <i class="fi fi-rr-box-open text-sm"></i>
+                                </div>
+
+                                <div class="min-w-0">
+                                    <p class="text-sm font-bold text-[#19191B]">
+                                        {{ $item->total_product ? $item->total_product . ' Total produk disewakan' : 'Belum ada produk.' }}
+                                    </p>
+
+                                    @if ($item->total_product)
+                                        <a href="{{ route('detail-pengguna.index', ['fullname' => $item->name]) }}"
+                                            class="mt-1 inline-flex text-xs font-bold text-[#12A4ED] hover:underline">
+                                            Lihat semua produk
+                                        </a>
+                                    @else
+                                        <p class="mt-1 text-xs font-medium text-slate-400">
+                                            Pengguna belum menyewakan produk.
+                                        </p>
+                                    @endif
+                                </div>
+                            </div>
+                        </div>
+
+                        {{-- Gender & Action --}}
+                        <div
+                            class="flex h-full items-center justify-between gap-3 rounded-2xl border border-slate-100 bg-white xl:justify-end xl:border-0 xl:bg-transparent">
+
+                            <div
+                                class="inline-flex min-w-[130px] items-center justify-center gap-2 rounded-2xl border border-slate-200 bg-white px-4 py-3">
+                                <span class="h-2.5 w-2.5 shrink-0 rounded-full bg-[#12A4ED]"></span>
+                                <span class="truncate text-sm font-bold text-[#19191B]">
+                                    {{ $item->jenis_kelamin ?: 'Belum di isi.' }}
+                                </span>
+                            </div>
+
+                            <div class="relative shrink-0">
+                                <button type="button"
+                                    class="btn-more inline-flex h-11 w-11 items-center justify-center rounded-2xl border border-slate-200 bg-white text-slate-500 transition hover:border-[#12A4ED]/40 hover:bg-[#12A4ED]/5 hover:text-[#12A4ED]"
+                                    aria-label="Menu pengguna">
+                                    <i class="fi fi-rr-menu-dots-vertical text-lg"></i>
+                                </button>
+
+                                <div
+                                    class="dropdown-menu invisible absolute right-0 top-12 z-[9999] w-44 translate-y-2 rounded-2xl border border-slate-100 bg-white p-2 opacity-0 shadow-2xl shadow-slate-900/15 transition">
+                                    <a href="{{ route('detail-pengguna.index', ['fullname' => $item->name]) }}"
+                                        class="flex items-center gap-3 rounded-xl px-3 py-2.5 text-sm font-bold text-slate-700 transition hover:bg-[#12A4ED]/10 hover:text-[#12A4ED]">
+                                        <i class="fi fi-rr-folder-open text-sm"></i>
+                                        <span>Detail</span>
+                                    </a>
+
+                                    <form action="{{ route('kelola-pengguna.destroy', $item->user_id) }}" method="POST"
+                                        class="singleDeleteForm" data-name="{{ $item->name }}">
+                                        @csrf
+                                        @method('DELETE')
+
+                                        <button type="submit"
+                                            class="flex w-full items-center gap-3 rounded-xl px-3 py-2.5 text-left text-sm font-bold text-red-500 transition hover:bg-red-50">
+                                            <i class="fi fi-rr-trash text-sm"></i>
+                                            <span>Delete</span>
+                                        </button>
+                                    </form>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </article>
+            @empty
+                {{-- Empty State --}}
+                <div class="rounded-[28px] border border-dashed border-slate-300 bg-white p-8 text-center shadow-sm">
+                    <div
+                        class="mx-auto mb-4 flex h-16 w-16 items-center justify-center rounded-3xl bg-slate-100 text-slate-400">
+                        <i class="fi fi-rr-users-alt text-2xl"></i>
+                    </div>
+
+                    <h3 class="text-lg font-bold text-[#19191B]">
+                        Data pengguna tidak ditemukan
+                    </h3>
+
+                    <p class="mx-auto mt-2 max-w-md text-sm leading-6 text-slate-500">
+                        Coba gunakan kata kunci lain atau reset filter pencarian untuk menampilkan semua customer.
+                    </p>
+
+                    <a href="{{ route('kelola-pengguna.index') }}"
+                        class="mt-5 inline-flex h-11 items-center justify-center rounded-2xl bg-[#12A4ED] px-5 text-sm font-bold text-white transition hover:bg-[#0E8FD0]">
+                        Reset Pencarian
+                    </a>
+                </div>
+            @endforelse
+        </div>
+
+        {{-- Pagination --}}
+        <div class="mt-6">
+            {{ $data->onEachSide(1)->links('components.paginate.custom-pagination') }}
+        </div>
     </div>
+
+    <style>
+        .swal2-popup.kampsewa-swal {
+            border-radius: 28px !important;
+            padding: 28px !important;
+            box-shadow: 0 24px 70px rgba(15, 23, 42, 0.22) !important;
+        }
+
+        .swal2-title.kampsewa-title {
+            color: #19191B !important;
+            font-size: 22px !important;
+            font-weight: 800 !important;
+        }
+
+        .swal2-html-container.kampsewa-text {
+            color: #64748B !important;
+            font-size: 14px !important;
+            font-weight: 500 !important;
+            line-height: 1.6 !important;
+        }
+
+        .kampsewa-confirm-button {
+            border-radius: 16px !important;
+            background: #5038ED !important;
+            color: white !important;
+            padding: 12px 22px !important;
+            font-size: 14px !important;
+            font-weight: 800 !important;
+            box-shadow: 0 12px 24px rgba(80, 56, 237, 0.25) !important;
+        }
+
+        .kampsewa-confirm-button:hover {
+            background: #412CCB !important;
+        }
+
+        .kampsewa-cancel-button {
+            border-radius: 16px !important;
+            background: #F1F5F9 !important;
+            color: #475569 !important;
+            padding: 12px 22px !important;
+            font-size: 14px !important;
+            font-weight: 800 !important;
+        }
+
+        .kampsewa-cancel-button:hover {
+            background: #E2E8F0 !important;
+        }
+
+        .swal2-icon.swal2-warning {
+            border-color: #5038ED !important;
+            color: #5038ED !important;
+        }
+
+        .swal2-icon.swal2-success {
+            border-color: #5038ED !important;
+            color: #5038ED !important;
+        }
+
+        .swal2-success-line-tip,
+        .swal2-success-line-long {
+            background-color: #5038ED !important;
+        }
+
+        .swal2-success-ring {
+            border-color: rgba(80, 56, 237, 0.25) !important;
+        }
+    </style>
+
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+
     <script>
-        const dropdownButton = document.getElementById('dropdown-button');
-        const dropdownMenu = document.getElementById('dropdown-menu');
-        dropdownButton.addEventListener('click', () => {
-            dropdownMenu.classList.toggle('hidden');
+        const KampSewaSwal = Swal.mixin({
+            customClass: {
+                popup: 'kampsewa-swal',
+                title: 'kampsewa-title',
+                htmlContainer: 'kampsewa-text',
+                confirmButton: 'kampsewa-confirm-button',
+                cancelButton: 'kampsewa-cancel-button'
+            },
+            buttonsStyling: false
         });
     </script>
-    <script>
-        // Get all btn-more elements
-        const btnsMore = document.querySelectorAll('.btn-more');
-
-        // Iterate through each btn-more and add click event listener
-        btnsMore.forEach(btnMore => {
-            btnMore.addEventListener('click', function() {
-                // Toggle the 'hidden' class of the dropdown-menu
-                const dropdownMenu = this.querySelector('.dropdown-menu');
-                dropdownMenu.classList.toggle('hidden');
+    @if (session('success'))
+        <script>
+            KampSewaSwal.fire({
+                icon: 'success',
+                title: 'Berhasil',
+                text: @json(session('success')),
+                confirmButtonText: 'Oke'
             });
-        });
+        </script>
+    @endif
 
-        // Close dropdown when clicking outside of it
-        window.addEventListener('click', function(event) {
-            btnsMore.forEach(btnMore => {
-                if (!btnMore.contains(event.target)) {
-                    const dropdownMenu = btnMore.querySelector('.dropdown-menu');
-                    dropdownMenu.classList.add('hidden');
+    @if (session('error'))
+        <script>
+            KampSewaSwal.fire({
+                icon: 'error',
+                title: 'Gagal',
+                text: @json(session('error')),
+                confirmButtonText: 'Oke'
+            });
+        </script>
+    @endif
+
+    @if ($errors->any())
+        <script>
+            KampSewaSwal.fire({
+                icon: 'error',
+                title: 'Validasi gagal',
+                html: `{!! implode('<br>', $errors->all()) !!}`,
+                confirmButtonText: 'Oke'
+            });
+        </script>
+    @endif
+
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            const buttons = document.querySelectorAll('.btn-more');
+
+            function closeAllDropdowns() {
+                document.querySelectorAll('.dropdown-menu').forEach(function(menu) {
+                    menu.classList.add('invisible', 'opacity-0', 'translate-y-2');
+                    menu.classList.remove('visible', 'opacity-100', 'translate-y-0');
+                });
+            }
+
+            buttons.forEach(function(button) {
+                button.addEventListener('click', function(event) {
+                    event.stopPropagation();
+
+                    const menu = this.parentElement.querySelector('.dropdown-menu');
+                    const isOpen = menu.classList.contains('visible');
+
+                    closeAllDropdowns();
+
+                    if (!isOpen) {
+                        menu.classList.remove('invisible', 'opacity-0', 'translate-y-2');
+                        menu.classList.add('visible', 'opacity-100', 'translate-y-0');
+                    }
+                });
+            });
+
+            document.addEventListener('click', function() {
+                closeAllDropdowns();
+            });
+
+            document.addEventListener('keydown', function(event) {
+                if (event.key === 'Escape') {
+                    closeAllDropdowns();
                 }
             });
+
+            const filterForm = document.getElementById('customerFilterForm');
+            const searchInput = document.getElementById('search');
+            const filterSelect = document.getElementById('filter');
+
+            let searchTimer = null;
+
+            if (searchInput && filterForm) {
+                searchInput.addEventListener('input', function() {
+                    clearTimeout(searchTimer);
+
+                    searchTimer = setTimeout(function() {
+                        filterForm.submit();
+                    }, 500);
+                });
+            }
+
+            if (filterSelect && filterForm) {
+                filterSelect.addEventListener('change', function() {
+                    filterForm.submit();
+                });
+            }
+
+            const checkAllUsers = document.getElementById('checkAllUsers');
+            const userCheckboxes = document.querySelectorAll('.user-checkbox');
+            const bulkDeleteButton = document.getElementById('bulkDeleteButton');
+            const selectedCount = document.getElementById('selectedCount');
+            const bulkDeleteForm = document.getElementById('bulkDeleteForm');
+
+            function updateBulkDeleteButton() {
+                const checkedUsers = document.querySelectorAll('.user-checkbox:checked');
+                const checkedCount = checkedUsers.length;
+
+                if (bulkDeleteButton) {
+                    bulkDeleteButton.disabled = checkedCount === 0;
+                }
+
+                if (selectedCount) {
+                    selectedCount.textContent = checkedCount;
+
+                    if (checkedCount > 0) {
+                        selectedCount.classList.remove('hidden');
+                    } else {
+                        selectedCount.classList.add('hidden');
+                    }
+                }
+
+                if (checkAllUsers) {
+                    checkAllUsers.checked = checkedCount > 0 && checkedCount === userCheckboxes.length;
+                    checkAllUsers.indeterminate = checkedCount > 0 && checkedCount < userCheckboxes.length;
+                }
+            }
+
+            if (checkAllUsers) {
+                checkAllUsers.addEventListener('change', function() {
+                    userCheckboxes.forEach(function(checkbox) {
+                        checkbox.checked = checkAllUsers.checked;
+                    });
+
+                    updateBulkDeleteButton();
+                });
+            }
+
+            userCheckboxes.forEach(function(checkbox) {
+                checkbox.addEventListener('change', updateBulkDeleteButton);
+            });
+
+            updateBulkDeleteButton();
+
+            if (bulkDeleteForm) {
+                bulkDeleteForm.addEventListener('submit', function(event) {
+                    event.preventDefault();
+
+                    const checkedUsers = document.querySelectorAll('.user-checkbox:checked');
+                    const total = checkedUsers.length;
+
+                    if (total === 0) {
+                        KampSewaSwal.fire({
+                            icon: 'warning',
+                            title: 'Belum ada data dipilih',
+                            text: 'Pilih minimal satu customer terlebih dahulu.',
+                            confirmButtonText: 'Oke'
+                        });
+
+                        return;
+                    }
+
+                    KampSewaSwal.fire({
+                        icon: 'warning',
+                        title: 'Hapus data terpilih?',
+                        text: 'Yakin ingin menghapus ' + total + ' customer terpilih?',
+                        showCancelButton: true,
+                        confirmButtonText: 'Ya, hapus',
+                        cancelButtonText: 'Batal'
+                    }).then((result) => {
+                        if (result.isConfirmed) {
+                            bulkDeleteForm.submit();
+                        }
+                    });
+                });
+            }
+
+            document.querySelectorAll('.singleDeleteForm').forEach(function(form) {
+                form.addEventListener('submit', function(event) {
+                    event.preventDefault();
+
+                    const name = form.dataset.name || 'customer ini';
+
+                    KampSewaSwal.fire({
+                        icon: 'warning',
+                        title: 'Hapus customer?',
+                        text: 'Yakin ingin menghapus ' + name + '?',
+                        showCancelButton: true,
+                        confirmButtonText: 'Ya, hapus',
+                        cancelButtonText: 'Batal'
+                    }).then((result) => {
+                        if (result.isConfirmed) {
+                            form.submit();
+                        }
+                    });
+                });
+            });
         });
-    </script>
-    <script>
+
         let modal = document.getElementById("modal");
 
-        // Fungsi untuk menampilkan atau menyembunyikan modal
         function modalHandler(val) {
+            if (!modal) return;
+
             if (val) {
                 fadeIn(modal);
             } else {
@@ -183,6 +618,7 @@
 
         function fadeOut(el) {
             el.style.opacity = 1;
+
             (function fade() {
                 if ((el.style.opacity -= 0.1) < 0) {
                     el.style.display = "none";
@@ -195,8 +631,10 @@
         function fadeIn(el, display) {
             el.style.opacity = 0;
             el.style.display = display || "flex";
+
             (function fade() {
                 let val = parseFloat(el.style.opacity);
+
                 if (!((val += 0.2) > 1)) {
                     el.style.opacity = val;
                     requestAnimationFrame(fade);

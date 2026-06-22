@@ -3,6 +3,7 @@
 namespace App\Http\Controllers\Developer;
 
 use App\Http\Controllers\Controller;
+use App\Models\Feedback;
 use App\Models\Produk;
 use App\Models\User;
 use Carbon\Carbon;
@@ -16,58 +17,117 @@ class DetailPenggunaController extends Controller
         $this->middleware('dev');
     }
     public function index($namalengkap)
-    {
-        $name = $namalengkap;
+{
+    $name = $namalengkap;
 
-        $user_baru_terdaftar = User::select('users.*')
-            ->join('status_notifikasi_user', 'users.id', '=', 'status_notifikasi_user.id_user')
-            ->where('users.type', 0)
-            ->whereDate('users.created_at', Carbon::today())
-            ->where('status_notifikasi_user.status', 'unread')
-            ->orderByDesc('users.created_at')->limit(10)
-            ->get();
+    $user_baru_terdaftar = User::select('users.*')
+        ->join('status_notifikasi_user', 'users.id', '=', 'status_notifikasi_user.id_user')
+        ->where('users.type', 0)
+        ->whereDate('users.created_at', Carbon::today())
+        ->where('status_notifikasi_user.status', 'unread')
+        ->orderByDesc('users.created_at')
+        ->limit(10)
+        ->get();
 
-        // get data user
-        $data = DB::table('produk')
-            ->rightJoin('users', 'produk.id_user', '=', 'users.id')
-            ->whereIn('users.type', [0]) // Filter user dengan type 0 (Customer)
-            ->select(
-                'users.id as user_id',
-                'users.name',
-                'users.nomor_telephone',
-                'users.created_at',
-                'users.jenis_kelamin',
-                'users.foto',
-                'users.tanggal_lahir',
-                DB::raw('COUNT(produk.id) as total_product')
-            )->where('users.name', $name)
-            ->groupBy('users.id', 'users.name', 'users.nomor_telephone', 'users.created_at', 'users.jenis_kelamin', 'users.foto', 'users.tanggal_lahir')
-            ->first();
+    $user = User::where('name', $namalengkap)
+        ->where('type', 0)
+        ->first();
 
-        $produk_disewakan_limit2 = Produk::with('foto')
-            ->leftJoin('variant_produk', 'produk.id', '=', 'variant_produk.id_produk')
-            ->leftJoin('detail_variant_produk', 'variant_produk.id', '=', 'detail_variant_produk.id_variant_produk')
-            ->leftJoin('users', 'users.id', '=', 'produk.id_user')
-            ->select(
-                'produk.id',
-                'produk.nama',
-                'produk.status',
-                DB::raw('SUM(detail_variant_produk.stok) as stok_produk')
-            )
-            ->where('users.name', $namalengkap)
-            ->groupBy('produk.id', 'produk.nama', 'produk.status')
-            ->limit(2)
-            ->get();
-
-
-        return view('developers.detail-pengguna')->with([
-            'title' => 'Detail Pengguna',
-            'name' => $name,
-            'user_baru_terdaftar' => $user_baru_terdaftar,
-            'data' => $data,
-            'produk_disewakan_limit2' => $produk_disewakan_limit2,
-        ]);
+    if (!$user) {
+        return redirect()
+            ->route('kelola-pengguna.index')
+            ->with('error', 'Pengguna tidak ditemukan.');
     }
+
+    $data = DB::table('users')
+        ->leftJoin('produk', 'produk.id_user', '=', 'users.id')
+        ->where('users.id', $user->id)
+        ->where('users.type', 0)
+        ->select(
+            'users.id as user_id',
+            'users.name',
+            'users.email',
+            'users.nomor_telephone',
+            'users.created_at',
+            'users.jenis_kelamin',
+            'users.foto',
+            'users.tanggal_lahir',
+            'users.status',
+            'users.background',
+            DB::raw('COUNT(produk.id) as total_product')
+        )
+        ->groupBy(
+            'users.id',
+            'users.name',
+            'users.email',
+            'users.nomor_telephone',
+            'users.created_at',
+            'users.jenis_kelamin',
+            'users.foto',
+            'users.tanggal_lahir',
+            'users.status',
+            'users.background'
+        )
+        ->first();
+
+    $produk_disewakan_limit2 = Produk::with('foto')
+        ->leftJoin('variant_produk', 'produk.id', '=', 'variant_produk.id_produk')
+        ->leftJoin('detail_variant_produk', 'variant_produk.id', '=', 'detail_variant_produk.id_variant_produk')
+        ->select(
+            'produk.id',
+            'produk.nama',
+            'produk.status',
+            DB::raw('COALESCE(SUM(detail_variant_produk.stok), 0) as stok_produk')
+        )
+        ->where('produk.id_user', $user->id)
+        ->groupBy('produk.id', 'produk.nama', 'produk.status')
+        ->latest('produk.created_at')
+        ->limit(5)
+        ->get();
+
+    $feedback_terbaru = Feedback::with([
+        'messages' => function ($query) {
+            $query->orderBy('created_at', 'asc')
+                ->orderBy('id', 'asc');
+        }
+    ])
+    ->where('id_user', $user->id)
+    ->latest()
+    ->limit(5)
+    ->get();
+
+$total_feedback = Feedback::where('id_user', $user->id)->count();
+
+$feedback_dibalas = Feedback::where('id_user', $user->id)
+    ->where(function ($query) {
+        $query->where('status', 'Dibalas')
+            ->orWhereHas('messages', function ($message) {
+                $message->where('sender_type', 'admin');
+            });
+    })
+    ->count();
+
+$feedback_belum_dibalas = Feedback::where('id_user', $user->id)
+    ->where(function ($query) {
+        $query->where('status', 'Belum Dibalas')
+            ->whereDoesntHave('messages', function ($message) {
+                $message->where('sender_type', 'admin');
+            });
+    })
+    ->count();
+
+    return view('developers.detail-pengguna')->with([
+        'title' => 'Detail Pengguna',
+        'name' => $name,
+        'user_baru_terdaftar' => $user_baru_terdaftar,
+        'data' => $data,
+        'produk_disewakan_limit2' => $produk_disewakan_limit2,
+        'feedback_terbaru' => $feedback_terbaru,
+        'total_feedback' => $total_feedback,
+        'feedback_dibalas' => $feedback_dibalas,
+        'feedback_belum_dibalas' => $feedback_belum_dibalas,
+    ]);
+}
     public function showProdukDisewakan($namalengkap, Request $request)
     {
         // Fetching new registered users with unread notifications
