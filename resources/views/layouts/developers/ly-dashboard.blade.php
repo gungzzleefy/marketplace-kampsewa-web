@@ -10,7 +10,7 @@
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link
-        href="https://fonts.googleapis.com/css2?family=Fira+Code:wght@300..700&family=Poppins:ital,wght@0,100;0,200;0,300;0,400;0,500;0,600;0,700;0,800;0,900;1,100;1,200;1,300;1,400;1,500;1,600;1,700;1,800;1,900&family=Work+Sans:ital,wght@0,100..900;1,100..900&display=swap"
+        href="https://fonts.googleapis.com/css2?family=Fira+Code:wght@300..700&family=Poppins:ital,wght@0,100;0,200;0,300;0,400;0,500;0,600;0,700;0,800;0,900&family=Work+Sans:ital,wght@0,100..900;1,100..900&display=swap"
         rel="stylesheet">
 
     {{-- import cdn icon bootstrap --}}
@@ -27,44 +27,73 @@
     <link rel="stylesheet" href="{{ asset('css/arsir/corak.css') }}">
     <link rel="stylesheet" href="{{ asset('css/universeio/input-for-data-feedback.css') }}">
     <link rel="stylesheet" href="{{ asset('css/input/numbertype.css') }}">
-    <link rel="stylesheet" href=" {{ asset('css/fonts/fonts.css') }}">
+    <link rel="stylesheet" href="{{ asset('css/fonts/fonts.css') }}">
 
     {{-- import icon untuk tab --}}
     <link rel="icon" href="{{ asset('favicon.ico') }}" type="image/x-icon">
+
     <title>{{ $title }}</title>
 
     {{-- import vite tailwind --}}
     @vite('resources/css/app.css')
 </head>
 
-<body class="overflow-x-hidden">
-    <div class="_container w-full flex font-poppins">
-        {{-- untuk side bar --}}
-        <div class="_sidebar ml-64 small-desktop:ml-auto">
-            @include('components.sidebars.sideabar1')
-        </div>
+@php
+    $whiteBackgroundTitles = [
+        'Profile | Developer Kamp Sewa',
+        'Rekap Keuangan | Developer',
+        'Pengeluaran',
+        'Penghasilan',
+        'Penyewaan',
+        'Detail Produk Sedang Disewa',
+        'Detail Produk Disewakan',
+        'Produk Disewakan',
+        'Detail Pengguna',
+    ];
 
-        {{-- untuk navbar dan kontent --}}
-        <div
-            class="_navbar-and-content w-full font-poppins {{ $title == 'Profile | Developer Kamp Sewa' ? 'bg-white' : 'bg-[#EFF2F7]' }} {{ $title == 'Rekap Keuangan | Developer' ? 'bg-white' : 'bg-[#EFF2F7]' }} {{ $title == 'Pengeluaran' ? 'bg-white' : 'bg-[#EFF2F7]' }} {{ $title == 'Penghasilan' ? 'bg-white' : 'bg-[#EFF2F7]' }} {{ $title == 'Penyewaan' ? 'bg-white' : 'bg-[#EFF2F7]' }} {{ $title == 'Detail Produk Sedang Disewa' ? 'bg-white' : 'bg-[#EFF2F7]' }} {{ $title == 'Detail Produk Disewakan' ? 'bg-white' : 'bg-[#EFF2F7]' }} {{ $title == 'Produk Disewakan' ? 'bg-white' : 'bg-[#EFF2F7]' }} {{ $title == 'Detail Pengguna' ? 'bg-white' : 'bg-[#EFF2F7]' }} ">
+    $isWhiteBackground = in_array($title ?? '', $whiteBackgroundTitles, true);
+@endphp
+
+<body class="overflow-x-hidden font-poppins {{ $isWhiteBackground ? 'bg-white' : 'bg-[#EFF2F7]' }}">
+
+    <div class="min-h-screen w-full">
+
+        {{-- Sidebar --}}
+        @include('components.sidebars.sideabar1')
+
+        {{-- Navbar + Content --}}
+        <main
+            class="min-h-screen w-full transition-all duration-300 
+            lg:pl-[280px] 
+            small-desktop:pl-0
+            {{ $isWhiteBackground ? 'bg-white' : 'bg-[#EFF2F7]' }}">
+
             @include('components.navbars.navbar1')
-            @yield('content')
-        </div>
 
-        {{-- import library chartjs --}}
-        <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
-        <script src="https://cdnjs.cloudflare.com/ajax/libs/chartjs-plugin-datalabels/2.2.0/chartjs-plugin-datalabels.min.js" integrity="sha512-JPcRR8yFa8mmCsfrw4TNte1ZvF1e3+1SdGMslZvmrzDYxS69J7J49vkFL8u6u8PlPJK+H3voElBtUCzaXj+6ig==" crossorigin="anonymous" referrerpolicy="no-referrer"></script>
+            <section class="w-full">
+                @yield('content')
+            </section>
 
-        {{-- import chart js style --}}
-        <script src="{{ asset('js/chart-finance.js') }}"></script>
-        <script src="{{ asset('js/chart-keuntungan.js') }}"></script>
-        <script src="{{ asset('js/chart-kerugian.js') }}"></script>
-        <script src="{{ asset('js/char-penghasilan-pertahun.js') }}"></script>
-        <script src="{{ asset('js/chart-totalperbulan.js') }}"></script>
-        <script src="{{ asset('js/chart-totalperminggu.js') }}"></script>
-        <script src="{{ asset('js/chart-pengeluaran.js') }}"></script>
-        <script src="{{ asset('js/chart-pebandingan-keuntungan.js') }}"></script>
+        </main>
+
     </div>
+
+    {{-- import library chartjs --}}
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/chartjs-plugin-datalabels/2.2.0/chartjs-plugin-datalabels.min.js"
+        integrity="sha512-JPcRR8yFa8mmCsfrw4TNte1ZvF1e3+1SdGMslZvmrzDYxS69J7J49vkFL8u6u8PlPJK+H3voElBtUCzaXj+6ig=="
+        crossorigin="anonymous" referrerpolicy="no-referrer"></script>
+
+    {{-- import chart js style --}}
+    <script src="{{ asset('js/chart-finance.js') }}"></script>
+    <script src="{{ asset('js/chart-keuntungan.js') }}"></script>
+    <script src="{{ asset('js/chart-kerugian.js') }}"></script>
+    <script src="{{ asset('js/char-penghasilan-pertahun.js') }}"></script>
+    <script src="{{ asset('js/chart-totalperbulan.js') }}"></script>
+    <script src="{{ asset('js/chart-totalperminggu.js') }}"></script>
+    <script src="{{ asset('js/chart-pengeluaran.js') }}"></script>
+    <script src="{{ asset('js/chart-pebandingan-keuntungan.js') }}"></script>
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
 
     @include('sweetalert::alert')
 </body>

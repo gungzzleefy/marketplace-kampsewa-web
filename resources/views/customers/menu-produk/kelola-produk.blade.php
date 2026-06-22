@@ -103,15 +103,10 @@
                                     <tr class="bg-white border-b dark:bg-gray-800 dark:border-gray-700">
                                         <td scope="row"
                                             class="px-6 py-4 font-medium text-gray-900 flex items-center gap-2 dark:text-white">
-                                            @if ($item->foto != null)
-                                                <img class="w-[50px] h-[50px] rounded-[10px] object-cover"
-                                                    src="{{ asset('assets/image/customers/produk/' . $item->foto) }}"
-                                                    alt="">
-                                            @else
-                                                <img class="w-[50px] h-[50px] rounded-[10px] object-cover"
-                                                    src="{{ asset('assets/image/customers/produk/foldingcamptableleadpic.jpg') }}"
-                                                    alt="">
-                                            @endif
+                                            <img class="w-[50px] h-[50px] rounded-[10px] object-cover"
+                                                src="{{ str_starts_with($item->foto_depan ?? '', 'http') ? $item->foto_depan : \App\Helpers\PhotoHelper::getThumbnailUrl($item) }}"
+                                                alt="{{ $item->nama_produk }}"
+                                                onerror="this.onerror=null;this.src='{{ asset('images/illustration/filling-survey.png') }}';">
                                             <p class="line-clamp-2 capitalize">{{ $item->nama_produk }}</p>
                                         </td>
                                         <td class="px-6 py-4 text-left">

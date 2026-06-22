@@ -49,9 +49,11 @@
                         <div class="relative inline-block text-left">
                             <select id="filter" name="filter"
                                 class="origin-top-right z-10 mt-2 w-48 rounded-full px-4 py-2  text-[14px] mb-2 bg-white ring-1 ring-black ring-opacity-5">
+                                <option value="terbaru" {{ request('filter') == 'terbaru' ? 'selected' : '' }}>Terbaru
+                                </option>
                                 <option value="terlama" {{ request('filter') == 'terlama' ? 'selected' : '' }}>Terlama
                                 </option>
-                                <option value="terbaru" {{ request('filter') == 'terbaru' ? 'selected' : '' }}>Terbaru
+                                <option value="punya_produk" {{ request('filter') == 'punya_produk' ? 'selected' : '' }}>Punya Produk
                                 </option>
                             </select>
                         </div>

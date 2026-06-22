@@ -8,29 +8,44 @@
             <div class="--wrapper-content-1 flex flex-col gap-4">
                 <div class="--main-image justify-end w-full">
                     <img id="image-main" class="object-cover w-full"
-                        src="{{ asset('assets/image/customers/produk/' . $detail_produk->foto_depan) }}" alt="">
+                        src="{{ str_starts_with($detail_produk->foto->first()?->url_foto ?? $detail_produk->foto_depan ?? '', 'http') ? ($detail_produk->foto->first()?->url_foto ?? $detail_produk->foto_depan) : \App\Helpers\PhotoHelper::getPhotoUrl(
+                            $detail_produk->foto->first()?->url_foto ?? $detail_produk->foto_depan ?? '',
+                            $detail_produk->foto->first()?->tipe_sumber ?? 'internal'
+                        ) }}"
+                        alt="{{ $detail_produk->nama_produk }}"
+                        onerror="this.onerror=null;this.src='{{ asset('images/illustration/filling-survey.png') }}';">
                 </div>
                 <div class="--sub-image w-full grid grid-cols-2 sm:grid-cols-2 md:grid-cols-4 gap-4">
-                    <div class="--image1 cursor-pointer">
-                        <img class="hover:rounded-[20px] w-full h-full object-cover"
-                            src="{{ asset('assets/image/customers/produk/' . $detail_produk->foto_depan) }}" alt=""
-                            onclick="changeMainImage('{{ $detail_produk->foto_depan }}')">
-                    </div>
-                    <div class="--image2 cursor-pointer">
-                        <img class="hover:rounded-[20px] w-full h-full object-cover"
-                            src="{{ asset('assets/image/customers/produk/' . $detail_produk->foto_belakang) }}"
-                            alt="" onclick="changeMainImage('{{ $detail_produk->foto_belakang }}')">
-                    </div>
-                    <div class="--image3 cursor-pointer">
-                        <img class="hover:rounded-[20px] w-full h-full object-cover"
-                            src="{{ asset('assets/image/customers/produk/' . $detail_produk->foto_kiri) }}" alt=""
-                            onclick="changeMainImage('{{ $detail_produk->foto_kiri }}')">
-                    </div>
-                    <div class="--image4 cursor-pointer">
-                        <img class="hover:rounded-[20px] w-full h-full object-cover"
-                            src="{{ asset('assets/image/customers/produk/' . $detail_produk->foto_kanan) }}" alt=""
-                            onclick="changeMainImage('{{ $detail_produk->foto_kanan }}')">
-                    </div>
+                    @forelse ($detail_produk->foto as $foto)
+                        <div class="--image cursor-pointer group">
+                            <img class="hover:rounded-[20px] w-full h-full object-cover transition-all duration-300"
+                                src="{{ str_starts_with($foto->url_foto, 'http') ? $foto->url_foto : \App\Helpers\PhotoHelper::getPhotoUrl($foto->url_foto, $foto->tipe_sumber) }}" 
+                                alt="{{ $detail_produk->nama_produk }}"
+                                onclick="changeMainImage('{{ $foto->url_foto }}', '{{ str_starts_with($foto->url_foto, 'http') ? 'external' : $foto->tipe_sumber }}')"
+                                onerror="this.onerror=null;this.src='{{ asset('images/illustration/filling-survey.png') }}';">
+                        </div>
+                    @empty
+                        {{-- Fallback ke data lama jika tidak ada foto di tabel baru --}}
+                        @php
+                            $fotoLama = [
+                                ['url' => $detail_produk->foto_depan, 'tipe' => 'internal'],
+                                ['url' => $detail_produk->foto_belakang, 'tipe' => 'internal'],
+                                ['url' => $detail_produk->foto_kiri, 'tipe' => 'internal'],
+                                ['url' => $detail_produk->foto_kanan, 'tipe' => 'internal'],
+                            ];
+                        @endphp
+                        @foreach ($fotoLama as $foto)
+                            @if ($foto['url'] && $foto['url'] !== 'Belum di isi')
+                                <div class="--image cursor-pointer group">
+                                    <img class="hover:rounded-[20px] w-full h-full object-cover transition-all duration-300"
+                                        src="{{ str_starts_with($foto['url'], 'http') ? $foto['url'] : \App\Helpers\PhotoHelper::getPhotoUrl($foto['url'], $foto['tipe']) }}" 
+                                        alt="{{ $detail_produk->nama_produk }}"
+                                        onclick="changeMainImage('{{ $foto['url'] }}', '{{ str_starts_with($foto['url'], 'http') ? 'external' : $foto['tipe'] }}')"
+                                        onerror="this.onerror=null;this.src='{{ asset('images/illustration/filling-survey.png') }}';">
+                                </div>
+                            @endif
+                        @endforeach
+                    @endforelse
                 </div>
             </div>
             <div class="--divider absolute opacity-0 sm:opacity-100 sm:left-1/2 bg-[#f4f4f4] rounded-full w-[3px] h-full"></div>
@@ -163,12 +178,21 @@
             }
         });
 
-        function changeMainImage(newSrc) {
+        function changeMainImage(newSrc, tipoSumber) {
             // Mengambil elemen gambar utama
             var mainImage = document.getElementById('image-main');
 
-            // Mengganti sumber gambar utama dengan gambar yang diklik
-            mainImage.src = "{{ asset('assets/image/customers/produk/') }}" + '/' + newSrc;
+            // Jika external URL, gunakan langsung
+            if (tipoSumber === 'external') {
+                mainImage.src = newSrc;
+            } else {
+                // Jika internal, prepend asset path
+                if (!newSrc.startsWith('/') && !newSrc.startsWith('assets/')) {
+                    mainImage.src = "{{ asset('assets/image/customers/produk/') }}" + '/' + newSrc;
+                } else {
+                    mainImage.src = "{{ asset('') }}" + newSrc;
+                }
+            }
         }
     </script>
 @endsection

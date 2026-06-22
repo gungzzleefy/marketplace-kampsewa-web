@@ -8,8 +8,8 @@
                 class="_card w-full flex bg-[#F2F5FD] hover:bg-white items-center cursor-pointer p-2 rounded-[10px] justify-between">
                 <div class="_field-foto-nama-stok-status flex justify-start gap-2">
                     <div class="_foto w-[50px] h-[50px] overflow-hidden rounded-[10px]">
-                        <img class="object-cover" src="{{ asset('assets/image/customers/produk/' . $item->foto_depan) }}"
-                            alt="">
+                        <img class="object-cover w-full h-full" src="{{ \App\Helpers\PhotoHelper::getThumbnailUrl($item) }}"
+                            alt="{{ $item->nama }}">
                     </div>
                     <div class="_nama-status">
                         <div class="_nama flex justify-start gap-2">

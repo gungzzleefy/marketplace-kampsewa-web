@@ -107,7 +107,7 @@
                                         </p>
                                     </div>
                                     <img class="object-cover w-full h-[180px]"
-                                        src="{{ asset('assets/image/customers/produk/' . $item->foto) }}" alt="">
+                                        src="{{ \App\Helpers\PhotoHelper::getThumbnailUrl($item) }}" alt="{{ $item->nama }}">
                                 </div>
                             </a>
                         </div>
@@ -191,7 +191,7 @@
                         if (result.isConfirmed) {
                             // Lakukan penghapusan jika pengguna mengonfirmasi
                             $.ajax({
-                                url: '{{ route('delete_selected_products') }}', // Gantilah URL ini sesuai dengan rute Anda
+                                url: "{{ route('delete_selected_products') }}", // Gantilah URL ini sesuai dengan rute Anda
                                 type: 'POST',
                                 data: {
                                     ids: selectedIds,

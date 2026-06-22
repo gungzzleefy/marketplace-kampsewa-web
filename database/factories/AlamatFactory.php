@@ -2,6 +2,7 @@
 
 namespace Database\Factories;
 
+use App\Models\User;
 use Illuminate\Database\Eloquent\Factories\Factory;
 
 /**
@@ -17,7 +18,7 @@ class AlamatFactory extends Factory
     public function definition(): array
     {
         return [
-            'id_user' => $this->faker->numberBetween(1, 500),
+            'id_user' => User::inRandomOrder()->first()?->id ?? User::factory(),
             'longitude' => $this->faker->longitude(),
             'latitude' => $this->faker->latitude(),
             'detail_lainnya' => $this->faker->sentence(),

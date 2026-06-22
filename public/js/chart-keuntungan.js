@@ -1,95 +1,119 @@
-// Fetch API total keuntungan
-async function fetchApiTotalKeuntungan() {
-    const url = "http://192.168.1.3:8000/api/chart-keuntungan-menu-dashboard";
-    try {
-        const response = await fetch(url, { mode: 'cors' }); // Use 'cors' mode
-        const data = await response.json();
-        return data;
-    } catch (error) {
-        console.error('Error fetching data:', error);
-        return null; // Return null in case of error
+document.addEventListener('DOMContentLoaded', function () {
+    const canvas = document.getElementById('chart-keuntungan');
+
+    if (!canvas) {
+        return;
     }
-}
 
-fetchApiTotalKeuntungan().then(data => {
-    if (data) {
-        const getKeuntungan = data.total.total_keuntungan;
-        console.log(getKeuntungan);
+    if (typeof Chart === 'undefined') {
+        console.error('Chart.js belum ter-load.');
+        return;
+    }
 
-        // Convert formatted string like "1,405M" to number 1405000000
-        const parseKeuntungan = (str) => parseFloat(str.replace(/,/g, '').replace('M', '')) * 1000000;
+    const apiUrl = '/api/chart-keuntungan-menu-dashboard';
 
-        const keuntunganTahunIni = parseKeuntungan(getKeuntungan.keuntungan_tahun_saat_ini);
-        const keuntunganTahunLalu = parseKeuntungan(getKeuntungan.keuntungan_tahun_lalu);
+    function parseNumber(value) {
+        if (!value) return 0;
 
-        const keuntungan = document.getElementById("chart-keuntungan");
+        let stringValue = String(value)
+            .trim()
+            .replace(/\s/g, '')
+            .replace(/Rp\.?/gi, '');
 
-        const dataChartKeuntungan = {
-            labels: ["Tahun ini", "Tahun lalu"],
+        let multiplier = 1;
+
+        if (stringValue.toUpperCase().includes('M')) {
+            multiplier = 1000000;
+            stringValue = stringValue.replace(/M/gi, '');
+        }
+
+        if (stringValue.toUpperCase().includes('K')) {
+            multiplier = 1000;
+            stringValue = stringValue.replace(/K/gi, '');
+        }
+
+        stringValue = stringValue.replace(/,/g, '');
+
+        const numberValue = parseFloat(stringValue);
+
+        return isNaN(numberValue) ? 0 : numberValue * multiplier;
+    }
+
+    function safeChartValue(value) {
+        return value > 0 ? value : 1;
+    }
+
+    const initialKeuntungan = Number(canvas.dataset.keuntungan || 0);
+
+    const chartKeuntungan = new Chart(canvas, {
+        type: 'doughnut',
+        data: {
+            labels: ['Tahun ini', 'Tahun lalu'],
             datasets: [
                 {
-                    label: "Keuntungan",
+                    label: 'Keuntungan',
                     data: [
-                        keuntunganTahunIni,
-                        keuntunganTahunLalu,
+                        safeChartValue(initialKeuntungan),
+                        safeChartValue(initialKeuntungan * 0.35),
                     ],
                     backgroundColor: [
-                        "rgb(54, 162, 235)",
-                        "#F2F5FD",
+                        'rgb(54, 162, 235)',
+                        '#F2F5FD',
                     ],
+                    borderWidth: 0,
                     hoverOffset: 4,
                     borderRadius: 10,
                 },
             ],
-        };
-
-        const configKeuntungan = {
-            type: "doughnut",
-            data: dataChartKeuntungan,
-            options: {
-                plugins: {
-                    legend: {
-                        display: false,
+        },
+        options: {
+            responsive: true,
+            maintainAspectRatio: false,
+            cutout: '50%',
+            animation: {
+                duration: 400,
+            },
+            plugins: {
+                legend: {
+                    display: false,
+                },
+                tooltip: {
+                    callbacks: {
+                        label: function (context) {
+                            const value = context.raw || 0;
+                            return `${context.label}: Rp. ${value.toLocaleString('id-ID')}`;
+                        },
                     },
                 },
             },
-        };
+        },
+    });
 
-        new Chart(keuntungan, configKeuntungan);
-    } else {
-        // Add manual data if fetch API fails
-        const keuntungan = document.getElementById("chart-keuntungan");
+    fetch(apiUrl, {
+        method: 'GET',
+        headers: {
+            Accept: 'application/json',
+        },
+    })
+        .then(response => response.json())
+        .then(data => {
+            if (!data || !data.total || !data.total.total_keuntungan) {
+                return;
+            }
 
-        const dataChartKeuntungan = {
-            labels: ["Tahun ini", "Tahun lalu"],
-            datasets: [
-                {
-                    label: "Keuntungan",
-                    data: [1500000000, 1000000000], // Manual data in the same unit (1.5M and 1M)
-                    backgroundColor: [
-                        "rgb(54, 162, 235)",
-                        "#F2F5FD",
-                    ],
-                    hoverOffset: 4,
-                    borderRadius: 10,
-                },
-            ],
-        };
+            const keuntungan = data.total.total_keuntungan;
 
-        const configKeuntungan = {
-            type: "doughnut",
-            data: dataChartKeuntungan,
-            options: {
-                plugins: {
-                    legend: {
-                        display: false,
-                    },
-                },
-            },
-        };
+            const keuntunganTahunIni = parseNumber(keuntungan.keuntungan_tahun_saat_ini);
+            const keuntunganTahunLalu = parseNumber(keuntungan.keuntungan_tahun_lalu);
 
-        new Chart(keuntungan, configKeuntungan);
-    }
-}).catch(error => {
-    console.error('Error fetching data:', error);
+            chartKeuntungan.data.datasets[0].data = [
+                safeChartValue(keuntunganTahunIni),
+                safeChartValue(keuntunganTahunLalu),
+            ];
+
+            chartKeuntungan.update();
+        })
+        .catch(error => {
+            console.error('Gagal update chart keuntungan dari API:', error);
+        });
 });

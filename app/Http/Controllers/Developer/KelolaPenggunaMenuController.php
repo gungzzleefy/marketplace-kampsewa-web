@@ -58,6 +58,8 @@ class KelolaPenggunaMenuController extends Controller
         // Tambahkan urutan berdasarkan filter
         if ($filter == 'terlama') {
             $query->orderBy('users.created_at', 'asc');
+        } elseif ($filter == 'punya_produk') {
+            $query->havingRaw('COUNT(produk.id) > 0')->orderBy('users.created_at', 'desc');
         } else {
             $query->orderBy('users.created_at', 'desc');
         }

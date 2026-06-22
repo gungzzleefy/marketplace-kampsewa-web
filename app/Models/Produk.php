@@ -22,4 +22,29 @@ class Produk extends Model
         'foto_kiri',
         'foto_kanan',
     ];
+
+    /**
+     * Get all photos for the product
+     */
+    public function foto()
+    {
+        return $this->hasMany(FotoProduk::class, 'id_produk')->orderBy('urutan', 'asc');
+    }
+
+    /**
+     * Get the first photo (thumbnail)
+     */
+    public function photoThumbnail()
+    {
+        return $this->hasOne(FotoProduk::class, 'id_produk')
+            ->orderBy('urutan', 'asc');
+    }
+
+    /**
+     * Get user that owns this product
+     */
+    public function user()
+    {
+        return $this->belongsTo(User::class, 'id_user');
+    }
 }

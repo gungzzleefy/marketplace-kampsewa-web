@@ -2,6 +2,8 @@
 
 namespace Database\Factories;
 
+use App\Models\Produk;
+use App\Models\User;
 use Illuminate\Database\Eloquent\Factories\Factory;
 
 /**
@@ -17,8 +19,8 @@ class RatingProdukFactory extends Factory
     public function definition(): array
     {
         return [
-            'id_produk' => $this->faker->numberBetween(1, 500),
-            'id_user' => $this->faker->numberBetween(1, 500),
+            'id_produk' => Produk::inRandomOrder()->first()?->id ?? Produk::factory(),
+            'id_user' => User::inRandomOrder()->first()?->id ?? User::factory(),
             'rating' => $this->faker->numberBetween(1, 10),
             'ulasan' => $this->faker->sentence,
             'created_at' => $this->faker->dateTimeBetween('-1 year', 'now'),

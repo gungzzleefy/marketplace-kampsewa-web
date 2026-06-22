@@ -2,6 +2,7 @@
 
 namespace Database\Factories;
 
+use App\Models\Iklan;
 use Illuminate\Database\Eloquent\Factories\Factory;
 
 /**
@@ -17,7 +18,7 @@ class DetailIklanFactory extends Factory
     public function definition(): array
     {
         return [
-            'id_iklan' => $this->faker->numberBetween(1, 500),
+            'id_iklan' => Iklan::inRandomOrder()->first()?->id ?? Iklan::factory(),
             'tanggal_mulai' => $this->faker->date(),
             'tanggal_akhir' => $this->faker->date(),
             'harga_iklan' => $this->faker->numberBetween(10000, 100000),

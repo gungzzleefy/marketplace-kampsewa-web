@@ -1,95 +1,119 @@
-// Fetch API total keuntungan
-async function fetchApiTotalKerugian() {
-    const url = "http://192.168.1.3:8000/api/chart-keuntungan-menu-dashboard";
-    try {
-        const response = await fetch(url, { mode: 'cors' }); // Use 'cors' mode
-        const data = await response.json();
-        return data;
-    } catch (error) {
-        console.error('Error fetching data:', error);
-        return null; // Return null in case of error
+document.addEventListener('DOMContentLoaded', function () {
+    const canvas = document.getElementById('chart-kerugian');
+
+    if (!canvas) {
+        return;
     }
-}
 
-fetchApiTotalKerugian().then(data => {
-    if (data) {
-        const getKerugian = data.total.total_kerugian;
-        console.log(getKerugian);
+    if (typeof Chart === 'undefined') {
+        console.error('Chart.js belum ter-load.');
+        return;
+    }
 
-        // Convert formatted string like "1,405M" to number 1405000000
-        const parseKerugian = (str) => parseFloat(str.replace(/,/g, '').replace('M', '')) * 1000000;
+    const apiUrl = '/api/chart-keuntungan-menu-dashboard';
 
-        const kerugianTahunIni = parseKerugian(getKerugian.kerugian_tahun_saat_ini);
-        const kerugianTahunLalu = parseKerugian(getKerugian.kerugian_tahun_lalu);
+    function parseNumber(value) {
+        if (!value) return 0;
 
-        const kerugian = document.getElementById("chart-kerugian");
+        let stringValue = String(value)
+            .trim()
+            .replace(/\s/g, '')
+            .replace(/Rp\.?/gi, '');
 
-        const dataChartKerugian = {
-            labels: ["Tahun ini", "Tahun lalu"],
+        let multiplier = 1;
+
+        if (stringValue.toUpperCase().includes('M')) {
+            multiplier = 1000000;
+            stringValue = stringValue.replace(/M/gi, '');
+        }
+
+        if (stringValue.toUpperCase().includes('K')) {
+            multiplier = 1000;
+            stringValue = stringValue.replace(/K/gi, '');
+        }
+
+        stringValue = stringValue.replace(/,/g, '');
+
+        const numberValue = parseFloat(stringValue);
+
+        return isNaN(numberValue) ? 0 : numberValue * multiplier;
+    }
+
+    function safeChartValue(value) {
+        return value > 0 ? value : 1;
+    }
+
+    const initialKerugian = Number(canvas.dataset.kerugian || 0);
+
+    const chartKerugian = new Chart(canvas, {
+        type: 'doughnut',
+        data: {
+            labels: ['Tahun ini', 'Tahun lalu'],
             datasets: [
                 {
-                    label: "Kerugian",
+                    label: 'Kerugian',
                     data: [
-                        kerugianTahunIni,
-                        kerugianTahunLalu,
+                        safeChartValue(initialKerugian),
+                        safeChartValue(initialKerugian * 0.35),
                     ],
                     backgroundColor: [
-                        "rgb(54, 162, 235)",
-                        "#F2F5FD",
+                        '#ef4444',
+                        '#F2F5FD',
                     ],
+                    borderWidth: 0,
                     hoverOffset: 4,
                     borderRadius: 10,
                 },
             ],
-        };
-
-        const configKerugian = {
-            type: "doughnut",
-            data: dataChartKerugian,
-            options: {
-                plugins: {
-                    legend: {
-                        display: false,
+        },
+        options: {
+            responsive: true,
+            maintainAspectRatio: false,
+            cutout: '50%',
+            animation: {
+                duration: 400,
+            },
+            plugins: {
+                legend: {
+                    display: false,
+                },
+                tooltip: {
+                    callbacks: {
+                        label: function (context) {
+                            const value = context.raw || 0;
+                            return `${context.label}: Rp. ${value.toLocaleString('id-ID')}`;
+                        },
                     },
                 },
             },
-        };
+        },
+    });
 
-        new Chart(kerugian, configKerugian);
-    } else {
-        // Add manual data if fetch API fails
-        const kerugian = document.getElementById("chart-Kerugian");
+    fetch(apiUrl, {
+        method: 'GET',
+        headers: {
+            Accept: 'application/json',
+        },
+    })
+        .then(response => response.json())
+        .then(data => {
+            if (!data || !data.total || !data.total.total_kerugian) {
+                return;
+            }
 
-        const dataChartKerugian = {
-            labels: ["Tahun ini", "Tahun lalu"],
-            datasets: [
-                {
-                    label: "Kerugian",
-                    data: [1500000000, 1000000000],
-                    backgroundColor: [
-                        "rgb(54, 162, 235)",
-                        "#F2F5FD",
-                    ],
-                    hoverOffset: 4,
-                    borderRadius: 10,
-                },
-            ],
-        };
+            const kerugian = data.total.total_kerugian;
 
-        const configKerugian = {
-            type: "doughnut",
-            data: dataChartKerugian,
-            options: {
-                plugins: {
-                    legend: {
-                        display: false,
-                    },
-                },
-            },
-        };
+            const kerugianTahunIni = parseNumber(kerugian.kerugian_tahun_saat_ini);
+            const kerugianTahunLalu = parseNumber(kerugian.kerugian_tahun_lalu);
 
-        new Chart(kerugian, configKerugian);
-    }
-}).catch(error => {
-    console.error('Error fetching data:', error);
+            chartKerugian.data.datasets[0].data = [
+                safeChartValue(kerugianTahunIni),
+                safeChartValue(kerugianTahunLalu),
+            ];
+
+            chartKerugian.update();
+        })
+        .catch(error => {
+            console.error('Gagal update chart kerugian dari API:', error);
+        });
 });

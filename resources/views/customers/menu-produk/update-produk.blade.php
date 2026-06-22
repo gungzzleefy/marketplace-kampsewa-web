@@ -436,8 +436,8 @@
             // Jika format file tidak didukung, tampilkan pesan notifikasi
             if (formatNotSupported) {
                 Swal.fire({
-                    title: `Format File ${formatNotSupported} Tidak Didukung`,
-                    text: `Format file harus dalam format .jpg, .jpeg, .png, atau .svg.`,
+                    title: `Format File Tidak Didukung`,
+                    text: `File ${formatNotSupported} harus dalam format .jpg, .jpeg, .png, atau .svg.`,
                     icon: 'error',
                     confirmButtonText: 'OK'
                 });

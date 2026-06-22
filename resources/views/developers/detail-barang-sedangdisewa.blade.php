@@ -18,16 +18,12 @@
             <div class="_component-image-produk relative w-full">
                 <div class="_image-detail flex flex-col gap-2 sticky top-6 z-50">
                     <img class="rounded-[10px] w-full h-[450px] object-cover"
-                        src="{{ asset('assets/image/customers/produk/gerber.png') }}" alt="">
+                        src="{{ \App\Helpers\PhotoHelper::getThumbnailUrl($produk) }}" alt="{{ $produk->nama }}">
                     <div class="_image-all grid grid-cols-4 gap-2 w-full">
-                        <img class="rounded-[10px] object-cover w-full h-[120px]"
-                            src="{{ asset('assets/image/customers/produk/shopping.webp') }}" alt="">
-                        <img class="rounded-[10px] object-cover w-full h-[120px]"
-                            src="{{ asset('assets/image/customers/produk/gerber.png') }}" alt="">
-                        <img class="rounded-[10px] object-cover w-full h-[120px]"
-                            src="{{ asset('assets/image/customers/produk/shopping.webp') }}" alt="">
-                        <img class="rounded-[10px] object-cover w-full h-[120px]"
-                            src="{{ asset('assets/image/customers/produk/gerber.png') }}" alt="">
+                        @foreach($produk->foto->take(4) as $p)
+                            <img class="rounded-[10px] object-cover w-full h-[120px]"
+                                src="{{ \App\Helpers\PhotoHelper::getPhotoUrl($p->url_foto, $p->tipe_sumber) }}" alt="">
+                        @endforeach
                     </div>
                 </div>
             </div>
@@ -37,33 +33,24 @@
                     <div class="_field flex flex-col gap-1">
                         <div class="_nama-produk flex gap-2">
                             <p class="text-[14px] text-[#847588] text-nowrap">Nama Produk :</p>
-                            <p class="text-[14px] font-medium">Gerber Multi-Purpose Nippers With Screw MultiFungsi Untuk
-                                Kamping Berpengalaman Bagus</p>
+                            <p class="text-[14px] font-medium">{{ $produk->nama }}</p>
                         </div>
-                        <div class="_harga-sewa flex gap-2">
-                            <p class="text-[14px] text-[#847588] text-nowrap">Harga Sewa :</p>
-                            <p class="text-[14px] font-medium">Rp. 30.000,00 <sup>/Hari</sup></p>
-                        </div>
-                        <div class="_stok-produk flex gap-2">
+                        <div class="_stok-produk flex gap-2 mt-2">
                             <p class="text-[14px] text-[#847588] text-nowrap">Stok Produk :</p>
-                            <p class="text-[14px] font-medium">38 Stok</p>
+                            <p class="text-[14px] font-medium">{{ $stok_produk }} Stok</p>
                         </div>
-                        <div class="_status-produk flex gap-2">
+                        <div class="_status-produk flex gap-2 mt-2">
                             <p class="text-[14px] text-[#847588] text-nowrap">Status Produk :</p>
-                            <p class="text-[14px] font-medium">Tersedia</p>
+                            <p class="text-[14px] font-medium capitalize">{{ $produk->status }}</p>
                         </div>
-                        <div class="_kategori-produk flex gap-2">
+                        <div class="_kategori-produk flex gap-2 mt-2">
                             <p class="text-[14px] text-[#847588] text-nowrap">Kategori Produk :</p>
-                            <p class="text-[14px] font-medium">Sleeping Bag</p>
+                            <p class="text-[14px] font-medium">{{ $produk->kategori }}</p>
                         </div>
-                        <div class="_deskripsi-produk flex flex-col gap-2">
+                        <div class="_deskripsi-produk flex flex-col gap-2 mt-2">
                             <p class="text-[14px] text-[#847588] text-nowrap">Deskripsi Produk :</p>
                             <p class="text-[14px] font-medium p-2 shadow-box-shadow-36 rounded-[10px]">
-                                Lorem ipsum dolor sit amet consectetur adipisicing elit. Debitis quaerat repellendus odio
-                                deleniti facilis, exercitationem temporibus soluta adipisci, neque odit rem quas, ut
-                                excepturi autem praesentium. Fugit, odit maxime? Deserunt labore, recusandae porro officia
-                                suscipit at dolorum error perferendis nulla, dolorem amet odit quidem doloribus temporibus
-                                commodi? Non, expedita illum.
+                                {{ $produk->deskripsi }}
                             </p>
                         </div>
                         <div class="_tanggal-diposting flex gap-2">

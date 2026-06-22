@@ -1,6 +1,5 @@
 <?php
 
-use App\Http\Controllers\Api\ChartWebController;
 use App\Http\Controllers\Auth\AuthController;
 use App\Http\Controllers\Customer\DashboardCustController;
 use App\Http\Controllers\Customer\IklanController as CustomerIklanController;
@@ -23,108 +22,274 @@ use App\Http\Controllers\Developer\RekapKeuanganController;
 use App\Http\Controllers\LandingPageController;
 use Illuminate\Support\Facades\Route;
 
-// -- auth route
-Route::get('/login', [AuthController::class, 'index']);
-Route::get('/login', [AuthController::class, 'index'])->middleware('guest');
-Route::post('/login', [AuthController::class, 'login'])->name('login');
-Route::post("/logout", [AuthController::class, 'logout'])->name('logout');
-Route::get('/lupa-password', [LupaPassword::class, 'index'])->name('lupa-password');
-Route::post('/lupa-password/send-otp', [LupaPassword::class, 'sendOTP'])->name('lupa-password.send-otp');
-Route::get('/lupa-password/check-kode-otp/{nomor_telephone}', [LupaPassword::class, 'indexCheckOTP'])->name('lupa-password.kode-otp');
-Route::post('/lupa-password/check-kode-otp/{nomor_telephone}', [LupaPassword::class, 'checkOTP'])->name('lupa-password.check-otp');
-Route::post('/lupa-password/kirim-ulang/{nomor_telephone}', [LupaPassword::class, 'kirimUlang'])->name('lupa-password.kirim-ulang');
-Route::get('/lupa-password/reset-password/{nomor_telephone}', [LupaPassword::class, 'indexResetPassword'])->name('lupa-password.reset-password');
-Route::post('/lupa-password/reset-password/{nomor_telephone}', [LupaPassword::class, 'resetPassword'])->name('lupa-password.change-password');
+/*
+|--------------------------------------------------------------------------
+| Auth Routes
+|--------------------------------------------------------------------------
+*/
+
+Route::middleware('guest')->group(function () {
+    Route::get('/login', [AuthController::class, 'index']);
+    Route::post('/login', [AuthController::class, 'login'])->name('login');
+
+    Route::prefix('lupa-password')->name('lupa-password.')->group(function () {
+        Route::get('/', [LupaPassword::class, 'index'])->name('index');
+        Route::post('/send-otp', [LupaPassword::class, 'sendOTP'])->name('send-otp');
+
+        Route::get('/check-kode-otp/{nomor_telephone}', [LupaPassword::class, 'indexCheckOTP'])->name('kode-otp');
+        Route::post('/check-kode-otp/{nomor_telephone}', [LupaPassword::class, 'checkOTP'])->name('check-otp');
+
+        Route::post('/kirim-ulang/{nomor_telephone}', [LupaPassword::class, 'kirimUlang'])->name('kirim-ulang');
+
+        Route::get('/reset-password/{nomor_telephone}', [LupaPassword::class, 'indexResetPassword'])->name('reset-password');
+        Route::post('/reset-password/{nomor_telephone}', [LupaPassword::class, 'resetPassword'])->name('change-password');
+    });
+});
+
+Route::post('/logout', [AuthController::class, 'logout'])
+    ->middleware('auth')
+    ->name('logout');
+
+
+/*
+|--------------------------------------------------------------------------
+| Landing Page Routes
+|--------------------------------------------------------------------------
+*/
+
+Route::controller(LandingPageController::class)->group(function () {
+    Route::get('/', 'halamanBeranda')->name('landing-page.halaman-beranda');
+    Route::get('/halaman_destinasi', 'halaman_destinasi')->name('landing-page.halaman_destinasi');
+    Route::get('/halaman_sewabarang', 'halaman_sewabarang')->name('landing-page.halaman_sewabarang');
+    Route::get('/halaman_testimoni', 'halaman_testimoni')->name('landing-page.halaman_testimoni');
+});
+
 
 /*
 |--------------------------------------------------------------------------
 | Developer Routes
+|--------------------------------------------------------------------------
 */
 
-// landing page routes
-Route::get('/', [LandingPageController::class, 'halamanBeranda'])->name('landing-page.halaman-beranda');
-Route::get('/halaman_destinasi', [LandingPageController::class, 'halaman_destinasi'])->name('landing-page.halaman_destinasi');
-Route::get('/halaman_sewabarang', [LandingPageController::class, 'halaman_sewabarang'])->name('landing-page.halaman_sewabarang');
-Route::get('/halaman_testimoni', [LandingPageController::class, 'halaman_testimoni'])->name('landing-page.halaman_testimoni');
+Route::middleware('auth')->group(function () {
+
+    /*
+    |--------------------------------------------------------------------------
+    | Developer Dashboard
+    |--------------------------------------------------------------------------
+    */
+
+    Route::prefix('developer/dashboard')->group(function () {
+
+        Route::get('/home', [DashboardController::class, 'index'])->name('home.index');
+
+        /*
+        |--------------------------------------------------------------------------
+        | Notification
+        |--------------------------------------------------------------------------
+        */
+
+        Route::prefix('notification')->name('notification.')->controller(NotificationController::class)->group(function () {
+            Route::get('/', 'index')->name('index');
+            Route::post('/balas-semua-feedback', 'balasSemuaFeedback')->name('balas-semua-feedback');
+        });
+
+        /*
+        |--------------------------------------------------------------------------
+        | Kelola Pengguna
+        |--------------------------------------------------------------------------
+        */
+
+        Route::prefix('kelola-pengguna')->group(function () {
+            Route::get('/', [KelolaPenggunaMenuController::class, 'index'])->name('kelola-pengguna.index');
+
+            Route::prefix('detail-pengguna/{fullname}')->name('detail-pengguna.')->controller(DetailPenggunaController::class)->group(function () {
+                Route::get('/', 'index')->name('index');
+                Route::get('/produk-disewakan', 'showProdukDisewakan')->name('produk-disewakan');
+                Route::get('/produk-disewakan/detail-produk/{namaproduk}', 'showDetailProdukDisewakan')->name('detail-produk-disewakan');
+                Route::get('/detail-produk-sedang-disewa/{namaproduk}', 'showDetailProdukSedangDisewa')->name('detail-produk-sedang-disewa');
+            });
+        });
+
+        Route::get('/informasi-pengguna', [InformasiPenggunaController::class, 'index'])
+            ->name('informasi-pengguna.index');
+
+        /*
+        |--------------------------------------------------------------------------
+        | Iklan Developer
+        |--------------------------------------------------------------------------
+        */
+
+        Route::prefix('iklan')->name('iklan.')->controller(IklanController::class)->group(function () {
+            Route::get('/', 'index')->name('index');
+            Route::delete('/delete-iklan-pending/{id_iklan}', 'deleteIklanPending')->name('delete-iklan-pending');
+        });
+
+        /*
+        |--------------------------------------------------------------------------
+        | Penyewaan
+        |--------------------------------------------------------------------------
+        */
+
+        Route::get('/penyewaan', [Penyewaan::class, 'index'])->name('penyewaan.index');
+
+        /*
+        |--------------------------------------------------------------------------
+        | Keuangan Developer
+        |--------------------------------------------------------------------------
+        */
+
+        Route::get('/penghasilan', [PenghasilanController::class, 'index'])->name('penghasilan.index');
+        Route::post('/penghasilan/tambah-penghasila-dev/{id_user}', [PenghasilanController::class, 'tambahPenghasilan'])
+            ->name('penghasilan.tambah-penghasilan-dev');
+
+        Route::get('/pengeluaran', [PengeluaranController::class, 'index'])->name('pengeluaran.index');
+
+        Route::get('/rekap-keuangan', [RekapKeuanganController::class, 'index'])->name('rekap-keuangan.index');
+
+        /*
+        |--------------------------------------------------------------------------
+        | Profile Developer
+        |--------------------------------------------------------------------------
+        */
+
+        Route::get('/profile/{nama_lengkap}', [ProfileController::class, 'index'])->name('profile.index');
+    });
+
+    /*
+    |--------------------------------------------------------------------------
+    | Developer Action Routes Outside Prefix
+    |--------------------------------------------------------------------------
+    */
+
+    Route::put('/mark-notification-as-read', [DashboardController::class, 'markNotificationAsRead'])
+        ->name('mark-notification-as-read');
+
+    Route::post('/delete-selected-products', [DetailPenggunaController::class, 'deleteSelectedProducts'])
+        ->name('delete_selected_products');
+});
 
 
-// -- dashboard menu route
-Route::get('/developer/dashboard/home', [DashboardController::class, 'index'])->name('home.index')->middleware('auth');
-Route::put('/mark-notification-as-read', [DashboardController::class, 'markNotificationAsRead'])->name('mark-notification-as-read');
+/*
+|--------------------------------------------------------------------------
+| Customer Routes
+|--------------------------------------------------------------------------
+*/
 
-// -- notification
-Route::get('developer/dashboard/notification', [NotificationController::class, 'index'])->name('notification.index')->middleware('auth');
-Route::post('developer/dashboard/notification/balas-semua-feedback', [NotificationController::class, 'balasSemuaFeedback'])->name('notification.balas-semua-feedback')->middleware('auth');
+Route::middleware('auth')->prefix('customer/dashboard')->group(function () {
 
-// -- kelola pengguna
-Route::get('developer/dashboard/kelola-pengguna', [KelolaPenggunaMenuController::class, 'index'])->name('kelola-pengguna.index')->middleware('auth');
-Route::get('developer/dashboard/kelola-pengguna/detail-pengguna/{fullname}', [DetailPenggunaController::class, 'index'])->name('detail-pengguna.index')->middleware('auth');
-Route::get('developer/dashboard/kelola-pengguna/detail-pengguna/{fullname}/produk-disewakan', [DetailPenggunaController::class, 'showProdukDisewakan'])->name('detail-pengguna.produk-disewakan')->middleware('auth');
-Route::get('developer/dashboard/kelola-pengguna/detail-pengguna/{fullname}/produk-disewakan/detail-produk/{namaproduk}', [DetailPenggunaController::class, 'showDetailProdukDisewakan'])->name('detail-pengguna.detail-produk-disewakan')->middleware('auth');
-Route::get('developer/dashboard/kelola-pengguna/detail-pengguna/{fullname}/detail-produk-sedang-disewa/{namaproduk}', [DetailPenggunaController::class, 'showDetailProdukSedangDisewa'])->name('detail-pengguna.detail-produk-sedang-disewa')->middleware('auth');
-Route::post('/delete-selected-products', [DetailPenggunaController::class, 'deleteSelectedProducts'])->name('delete_selected_products')->middleware('auth');
-Route::get('developer/dashboard/informasi-pengguna', [InformasiPenggunaController::class, 'index'])->name('informasi-pengguna.index')->middleware('auth');
+    /*
+    |--------------------------------------------------------------------------
+    | Customer Dashboard
+    |--------------------------------------------------------------------------
+    */
 
-// iklan
-Route::get('developer/dashboard/iklan', [IklanController::class, 'index'])->name('iklan.index')->middleware('auth');
-Route::delete('developer/dashboard/iklan/delete-iklan-pending/{id_iklan}', [IklanController::class, 'deleteIklanPending'])->name('iklan.delete-iklan-pending')->middleware('auth');
+    Route::get('/home/{id_user?}', [DashboardCustController::class, 'index'])
+        ->name('dashboard-cust');
 
-Route::get('developer/dashboard/penyewaan', [Penyewaan::class, 'index'])->name('penyewaan.index')->middleware('auth');
-Route::get('developer/dashboard/penghasilan', [PenghasilanController::class, 'index'])->name('penghasilan.index')->middleware('auth');
-Route::post('developer/dashboard/penghasilan/tambah-penghasila-dev/{id_user}', [PenghasilanController::class, 'tambahPenghasilan'])->name('penghasilan.tambah-penghasilan-dev')->middleware('auth');
-Route::get('developer/dashboard/pengeluaran', [PengeluaranController::class, 'index'])->name('pengeluaran.index')->middleware('auth');
-Route::get('developer/dashboard/rekap-keuangan', [RekapKeuanganController::class, 'index'])->name('rekap-keuangan.index')->middleware('auth');
-Route::get('developer/dashboard/profile/{nama_lengkap}', [ProfileController::class, 'index'])->name('profile.index')->middleware('auth');
+    /*
+    |--------------------------------------------------------------------------
+    | Produk Customer
+    |--------------------------------------------------------------------------
+    */
+
+    Route::prefix('menu-produk')->name('menu-produk.')->controller(ProdukController::class)->group(function () {
+        Route::get('/{id_user}', 'index')->name('index');
+    });
+
+    Route::prefix('kelola-produk')->name('menu-produk.')->controller(ProdukController::class)->group(function () {
+        Route::get('/{id_user}', 'kelolaProduk')->name('kelola-produk');
+        Route::get('/detail-produk/{nama_produk}/{id_user}', 'detailProduk')->name('detail_produk');
+        Route::get('/tambah-produk/{id_user}', 'tambahProduk')->name('tambah-produk');
+        Route::get('/update-produk/{id_produk}/{id_user}', 'updateProduk')->name('update-produk');
+
+        Route::post('/tambah-produk-post', 'tambahProdukPost')->name('tambah-produk-post');
+        Route::put('/update-produk-put/{id_produk}', 'updateProdukPut')->name('update-produk-put');
+    });
+
+    Route::get('/sedang-disewa/{id_user}', [ProdukController::class, 'sedangDisewa'])
+        ->name('menu-produk.sedang-disewa');
+
+    Route::delete('/delete-produk/{id_produk}', [ProdukController::class, 'deleteProduk'])
+        ->name('menu-produk.delete');
+
+    Route::get('/detail-produk/{id_produk}', [ProdukController::class, 'detailProduk'])
+        ->name('menu-produk.detail-produk');
+
+    /*
+    |--------------------------------------------------------------------------
+    | Iklan Customer
+    |--------------------------------------------------------------------------
+    */
+
+    Route::controller(CustomerIklanController::class)->group(function () {
+        Route::get('/buat-iklan/{id_user}', 'index')->name('buat-iklan.index');
+
+        Route::get('/kelola-iklan/{id_user}', 'kelolaIklan')->name('kelola-iklan.index');
+        Route::get('/kelola-iklan/update-iklan/{id_iklan}', 'updateIklanView')->name('kelola-iklan.update-iklan-view');
+        Route::put('/kelola-iklan/update-iklan-post/{id_iklan}/{id_user}', 'updateIklan')->name('kelola-iklan.update-iklan-post');
+
+        Route::get('/pilih-durasi-iklan/{id_user}', 'pilihDurasiIklan')->name('pilih-durasi-iklan.index');
+        Route::get('/layanan-iklan/{id_user}/{harga_iklan}', 'layananIklan')->name('layanan-iklan.index');
+        Route::post('/layanan-iklan/{id_user}/{harga_iklan}/{durasi}', 'simpanIklan')->name('layanan-iklan.simpan-iklan');
+
+        Route::get('/input-pembayaran-iklan/{id_user}/{harga_iklan}/{durasi}', 'inputPembayaranIklan')->name('input-pembayaran-iklan.index');
+        Route::post('/simpan-pembayaran-iklan/{id_user}', 'simpanPembayaranIklan')->name('simpan-pembayaran-iklan.simpan');
+    });
+
+    /*
+    |--------------------------------------------------------------------------
+    | Keuangan Customer
+    |--------------------------------------------------------------------------
+    */
+
+    Route::prefix('keuangan')->name('keuangan.')->controller(KeuanganController::class)->group(function () {
+        Route::get('/{id_user}', 'index')->name('index');
+
+        Route::post('/tambah-penghasilan/{id_user}', 'tambahPenghasilan')->name('tambah-penghasilan');
+        Route::get('/update-penghasilan/{id_penghasilan}', 'updatePenghasilan')->name('update-penghasilan');
+        Route::put('/update-penghasilan-post/{id_penghasilan}/{id_user}', 'updatePenghasilanPost')->name('update-penghasilan-post');
+        Route::delete('/delete-penghasilan/{id_penghasilan}/', 'deletePenghasilan')->name('delete-penghasilan');
+
+        Route::get('/pengeluaran/{id_user}', 'pengeluaran')->name('pengeluaran-customer');
+        Route::post('/tambah-pengeluaran/{id_user}', 'tambahPengeluaran')->name('tambah-pengeluaran-customer');
+        Route::get('/update-pengeluaran/{id_pengeluaran}', 'updatePengeluaran')->name('update-pengeluaran-customer');
+        Route::put('/update-pengeluaran-post/{id_pengeluaran}/{id_user}', 'updatePengeluaranPost')->name('update-pengeluaran-post-customer');
+        Route::delete('/delete-pengeluaran/{id_pengeluaran}', 'deletePengeluaran')->name('delete-pengeluaran-customer');
+    });
+
+    /*
+    |--------------------------------------------------------------------------
+    | Transaksi Customer
+    |--------------------------------------------------------------------------
+    */
+
+    Route::controller(TransaksiMenuController::class)->name('menu-transaksi.')->group(function () {
+        Route::get('/transaksi/{id_user}', 'index')->name('index');
+        Route::get('/sewa-berlangsung/{id_user}', 'sewaBerlangsung')->name('sewa-berlangsung');
+        Route::get('/denda-transaksi/{id_user}', 'dendaTransaksi')->name('denda-transaksi');
+        Route::get('/order-selesai/{id_user}', 'orderSelesai')->name('order-selesai');
+
+        Route::get('/transaksi/terima-order-masuk/{id_penyewaan}', 'terimaOrderMasuk')->name('terima-order-masuk');
+        Route::put('/transaksi/input-pembayaran-cod/{id_penyewaan}', 'inputPembayaranCOD')->name('input-pembayaran-cod');
+        Route::put('/transaksi/confirm-order-masuk/{id_penyewaan}/{id_user}/{parameter}', 'confirmOrderMasuk')->name('confirm-order-masuk');
+    });
+});
 
 
-// -- customer route
-Route::get('/customer/dashboard/home/{id_user?}', [DashboardCustController::class, 'index'])->name('dashboard-cust')->middleware('auth');
+/*
+|--------------------------------------------------------------------------
+| Customer Action Routes Outside Prefix
+|--------------------------------------------------------------------------
+*/
 
-//-- produk
-Route::get('/customer/dashboard/menu-produk/{id_user}', [ProdukController::class, 'index'])->name('menu-produk.index')->middleware('auth');
-Route::get('/customer/dashboard/kelola-produk/{id_user}', [ProdukController::class, 'kelolaProduk'])->name('menu-produk.kelola-produk')->middleware('auth');
-Route::get('/customer/dashboard/kelola-produk/detail-produk/{nama_produk}/{id_user}', [ProdukController::class, 'detailProduk'])->name('menu-produk.detail_produk')->middleware('auth');
-Route::get('/customer/dashboard/kelola-produk/tambah-produk/{id_user}', [ProdukController::class, 'tambahProduk'])->name('menu-produk.tambah-produk')->middleware('auth');
-Route::get('/customer/dashboard/kelola-produk/update-produk/{id_produk}/{id_user}', [ProdukController::class, 'updateProduk'])->name('menu-produk.update-produk')->middleware('auth');
-Route::post('/customer/dashboard/kelola-produk/tambah-produk-post', [ProdukController::class, 'tambahProdukPost'])->name('menu-produk.tambah-produk-post')->middleware('auth');
-Route::put('/customer/dashboard/kelola-produk/update-produk-put/{id_produk}', [ProdukController::class, 'updateProdukPut'])->name('menu-produk.update-produk-put')->middleware('auth');
-Route::get('/customer/dashboard/sedang-disewa/{id_user}', [ProdukController::class, 'sedangDisewa'])->name('menu-produk.sedang-disewa')->middleware('auth');
-Route::delete('/customer/dashboard/delete-produk/{id_produk}', [ProdukController::class, 'deleteProduk'])->name('menu-produk.delete')->middleware('auth');
-Route::get('/customer/dashboard/detail-produk/{id_produk}', [ProdukController::class, 'detailProduk'])->name('menu-produk.detail-produk')->middleware('auth');
+Route::middleware('auth')->group(function () {
+    Route::delete('/delete-kelola-iklan/{id_iklan}', [CustomerIklanController::class, 'deleteKelolaIklan'])
+        ->name('kelola-iklan.delete');
 
+    Route::get('/download-pdf-penghasilan/{id_user}/{tahun}', [KeuanganController::class, 'downloadPenghasilan'])
+        ->name('keuangan.download-penghasilan');
 
-// iklan
-Route::get('/customer/dashboard/buat-iklan/{id_user}', [CustomerIklanController::class, 'index'])->name('buat-iklan.index')->middleware('auth');
-Route::get('/customer/dashboard/kelola-iklan/{id_user}', [CustomerIklanController::class, 'kelolaIklan'])->name('kelola-iklan.index')->middleware('auth');
-Route::get('/customer/dashboard/kelola-iklan/update-iklan/{id_iklan}', [CustomerIklanController::class, 'updateIklanView'])->name('kelola-iklan.update-iklan-view')->middleware('auth');
-Route::put('/customer/dashboard/kelola-iklan/update-iklan-post/{id_iklan}/{id_user}', [CustomerIklanController::class, 'updateIklan'])->name('kelola-iklan.update-iklan-post')->middleware('auth');
-Route::get('/customer/dashboard/pilih-durasi-iklan/{id_user}', [CustomerIklanController::class, 'pilihDurasiIklan'])->name('pilih-durasi-iklan.index')->middleware('auth');
-Route::get('/customer/dashboard/layanan-iklan/{id_user}/{harga_iklan}', [CustomerIklanController::class, 'layananIklan'])->name('layanan-iklan.index')->middleware('auth');
-Route::post('/customer/dashboard/layanan-iklan/{id_user}/{harga_iklan}/{durasi}', [CustomerIklanController::class, 'simpanIklan'])->name('layanan-iklan.simpan-iklan')->middleware('auth');
-Route::get('/customer/dashboard/input-pembayaran-iklan/{id_user}/{harga_iklan}/{durasi}', [CustomerIklanController::class, 'inputPembayaranIklan'])->name('input-pembayaran-iklan.index')->middleware('auth');
-Route::post('/customer/dashboard/simpan-pembayaran-iklan/{id_user}', [CustomerIklanController::class, 'simpanPembayaranIklan'])->name('simpan-pembayaran-iklan.simpan')->middleware('auth');
-Route::delete('/delete-kelola-iklan/{id_iklan}', [CustomerIklanController::class, 'deleteKelolaIklan'])->name('kelola-iklan.delete')->middleware('auth');
-
-// keuangan laporan
-Route::get('/customer/dashboard/keuangan/{id_user}', [KeuanganController::class, 'index'])->name('keuangan.index')->middleware('auth');
-Route::post('/customer/dashboard/keuangan/tambah-penghasilan/{id_user}', [KeuanganController::class, 'tambahPenghasilan'])->name('keuangan.tambah-penghasilan')->middleware('auth');
-Route::get('/customer/dashboard/keuangan/update-penghasilan/{id_penghasilan}', [KeuanganController::class, 'updatePenghasilan'])->name('keuangan.update-penghasilan')->middleware('auth');
-Route::put('/customer/dashboard/keuangan/update-penghasilan-post/{id_penghasilan}/{id_user}', [KeuanganController::class, 'updatePenghasilanPost'])->name('keuangan.update-penghasilan-post')->middleware('auth');
-Route::get('/download-pdf-penghasilan/{id_user}/{tahun}', [KeuanganController::class, 'downloadPenghasilan'])->name('keuangan.download-penghasilan')->middleware('auth');
-Route::delete('/customer/dashboard/keuangan/delete-penghasilan/{id_penghasilan}/', [KeuanganController::class, 'deletePenghasilan'])->name('keuangan.delete-penghasilan')->middleware('auth');
-
-Route::get('/customer/dashboard/keuangan/pengeluaran/{id_user}', [KeuanganController::class, 'pengeluaran'])->name('keuangan.pengeluaran-customer')->middleware('auth');
-Route::post('/customer/dashboard/keuangan/tambah-pengeluaran/{id_user}', [KeuanganController::class, 'tambahPengeluaran'])->name('keuangan.tambah-pengeluaran-customer')->middleware('auth');
-Route::get('/customer/dashboard/keuangan/update-pengeluaran/{id_pengeluaran}', [KeuanganController::class, 'updatePengeluaran'])->name('keuangan.update-pengeluaran-customer')->middleware('auth');
-Route::put('/customer/dashboard/keuangan/update-pengeluaran-post/{id_pengeluaran}/{id_user}', [KeuanganController::class, 'updatePengeluaranPost'])->name('keuangan.update-pengeluaran-post-customer')->middleware('auth');
-Route::get('/download-pdf-pengeluaran/{id_user}/{tahun}', [KeuanganController::class, 'downloadPengeluaran'])->name('keuangan.download-pengeluaran-customer')->middleware('auth');
-Route::delete('/customer/dashboard/keuangan/delete-pengeluaran/{id_pengeluaran}', [KeuanganController::class, 'deletePengeluaran'])->name('keuangan.delete-pengeluaran-customer')->middleware('auth');
-
-// transaksi
-Route::get('customer/dashboard/transaksi/{id_user}', [TransaksiMenuController::class, 'index'])->name('menu-transaksi.index')->middleware('auth');
-Route::get('customer/dashboard/sewa-berlangsung/{id_user}', [TransaksiMenuController::class, 'sewaBerlangsung'])->name('menu-transaksi.sewa-berlangsung')->middleware('auth');
-Route::get('customer/dashboard/denda-transaksi/{id_user}', [TransaksiMenuController::class, 'dendaTransaksi'])->name('menu-transaksi.denda-transaksi')->middleware('auth');
-Route::get('customer/dashboard/order-selesai/{id_user}', [TransaksiMenuController::class, 'orderSelesai'])->name('menu-transaksi.order-selesai')->middleware('auth');
-Route::get('customer/dashboard/transaksi/terima-order-masuk/{id_penyewaan}', [TransaksiMenuController::class, 'terimaOrderMasuk'])->name('menu-transaksi.terima-order-masuk')->middleware('auth');
-Route::put('customer/dashboard/transaksi/input-pembayaran-cod/{id_penyewaan}', [TransaksiMenuController::class, 'inputPembayaranCOD'])->name('menu-transaksi.input-pembayaran-cod')->middleware('auth');
-Route::put('customer/dashboard/transaksi/confirm-order-masuk/{id_penyewaan}/{id_user}/{parameter}', [TransaksiMenuController::class, 'confirmOrderMasuk'])->name('menu-transaksi.confirm-order-masuk')->middleware('auth');
+    Route::get('/download-pdf-pengeluaran/{id_user}/{tahun}', [KeuanganController::class, 'downloadPengeluaran'])
+        ->name('keuangan.download-pengeluaran-customer');
+});

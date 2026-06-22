@@ -6,202 +6,349 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <meta http-equiv="X-UA-Compatible" content="ie=edge">
 
-    {{-- todo import css --}}
     <link rel="stylesheet" href="{{ asset('css/scrollbar/scrollbar-sidebar.css') }}">
 </head>
 
 <body>
-    <div class="min-h-screen flex flex-col small-desktop:hidden flex-auto flex-shrink-0 antialiased bg-gray-50 text-gray-800">
-        <div class="fixed flex flex-col top-0 left-0 w-64 bg-white h-full border-r">
-            <div class="px-5 flex mt-[20px] items-center h-14">
-                <div onclick="location.href='{{ route('home.index') }}'"
-                    class="cursor-pointer text-[20px] font-black flex items-center gap-2">
-                    <div><img class="w-[100px]" src="{{ asset('assets/logo/logo-kampsewa.png') }}" alt=""></div>
-                    <div>KampSewa.</div>
+    @php
+        $currentTitle = $title ?? '';
+
+        $menuGroups = [
+            [
+                'label' => 'Utama',
+                'items' => [
+                    [
+                        'label' => 'Dashboard',
+                        'icon' => 'fi fi-rr-house-chimney-window',
+                        'href' => route('home.index'),
+                        'active_titles' => ['Dashboard | Developer Kamp Sewa'],
+                    ],
+                    [
+                        'label' => 'Notifications',
+                        'icon' => 'fi fi-rr-bell',
+                        'href' => route('notification.index'),
+                        'active_titles' => ['Dashboard | Notification'],
+                    ],
+                ],
+            ],
+            [
+                'label' => 'Customer',
+                'items' => [
+                    [
+                        'label' => 'Kelola',
+                        'icon' => 'fi fi-rr-user-gear',
+                        'href' => route('kelola-pengguna.index'),
+                        'active_titles' => [
+                            'Detail Produk Sedang Disewa',
+                            'Detail Produk Disewakan',
+                            'Produk Disewakan',
+                            'Kelola Pengguna | Developer Kamp Sewa',
+                            'Detail Pengguna',
+                        ],
+                    ],
+                    [
+                        'label' => 'Informasi',
+                        'icon' => 'fi fi-rr-file-user',
+                        'href' => route('informasi-pengguna.index'),
+                        'active_titles' => ['Informasi Pengguna'],
+                    ],
+                ],
+            ],
+            [
+                'label' => 'Transaksi',
+                'items' => [
+                    [
+                        'label' => 'Iklan Customer',
+                        'icon' => 'fi fi-rr-ad',
+                        'href' => route('iklan.index'),
+                        'active_titles' => ['Iklan Customer'],
+                    ],
+                ],
+            ],
+            [
+                'label' => 'Keuangan & Laporan',
+                'items' => [
+                    [
+                        'label' => 'Penghasilan & Pengeluaran',
+                        'icon' => 'fi fi-rr-revenue-alt',
+                        'href' => route('penghasilan.index'),
+                        'active_titles' => ['Penghasilan', 'Pengeluaran'],
+                    ],
+                    [
+                        'label' => 'Rekap Keuangan',
+                        'icon' => 'fi fi-rr-book',
+                        'href' => route('rekap-keuangan.index'),
+                        'active_titles' => ['Rekap Keuangan | Developer'],
+                    ],
+                ],
+            ],
+            [
+                'label' => 'Settings',
+                'items' => [
+                    [
+                        'label' => 'Profile',
+                        'icon' => null,
+                        'href' => route('profile.index', ['nama_lengkap' => session('nama_lengkap')]),
+                        'active_titles' => ['Profile | Developer Kamp Sewa'],
+                    ],
+                ],
+            ],
+        ];
+    @endphp
+
+    {{-- Mobile Overlay --}}
+    <div id="sidebarOverlay" class="fixed inset-0 z-40 hidden bg-slate-900/40 backdrop-blur-sm lg:hidden">
+    </div>
+
+    <aside id="developerSidebar"
+        class="fixed left-0 top-0 z-50 flex h-screen w-[280px] -translate-x-full flex-col border-r border-slate-200/80 bg-white/95 shadow-[0_20px_60px_rgba(15,23,42,0.16)] backdrop-blur-xl transition-transform duration-300 ease-in-out lg:z-40 lg:translate-x-0">
+
+        {{-- Brand --}}
+        <div class="px-5 pt-5">
+            <a href="{{ route('home.index') }}"
+                class="group flex items-center gap-3 rounded-3xl border border-slate-100 bg-gradient-to-br from-white to-slate-50 p-3 transition-all duration-300 hover:border-violet-200 hover:shadow-lg hover:shadow-violet-100/70">
+
+                <div class="flex h-12 w-12 items-center justify-center rounded-2xl bg-violet-50">
+                    <img class="w-9 object-contain" src="{{ asset('assets/logo/logo-kampsewa.png') }}" alt="KampSewa">
+                </div>
+
+                <div class="min-w-0">
+                    <h1 class="truncate text-lg font-black tracking-tight text-slate-900">
+                        KampSewa<span class="text-violet-600">.</span>
+                    </h1>
+                    <p class="truncate text-xs font-medium text-slate-400">
+                        Developer Panel
+                    </p>
+                </div>
+            </a>
+            <button type="button" id="sidebarClose"
+                class="mt-3 flex h-11 w-full items-center justify-center gap-2 rounded-2xl bg-slate-100 text-sm font-bold text-slate-600 transition-all duration-300 hover:bg-red-50 hover:text-red-500 lg:hidden">
+                <i class="bi bi-x-lg text-sm"></i>
+                Tutup Menu
+            </button>
+        </div>
+
+        {{-- Navigation --}}
+        <nav class="mt-4 flex-1 overflow-y-auto overflow-x-hidden px-3 pb-4">
+            <div class="space-y-5">
+                @foreach ($menuGroups as $group)
+                    <div>
+                        <div class="mb-2 px-3">
+                            <p class="text-[11px] font-bold uppercase tracking-[0.18em] text-slate-400">
+                                {{ $group['label'] }}
+                            </p>
+                        </div>
+
+                        <div class="space-y-1">
+                            @foreach ($group['items'] as $item)
+                                @php
+                                    $isActive = in_array($currentTitle, $item['active_titles'], true);
+                                @endphp
+
+                                <a href="{{ $item['href'] }}"
+                                    class="group relative flex h-12 items-center gap-3 rounded-2xl px-3 text-sm font-semibold transition-all duration-300
+                                    {{ $isActive
+                                        ? 'bg-gradient-to-br from-[#B381F4] to-[#5038ED] text-white shadow-lg shadow-violet-500/25'
+                                        : 'text-slate-600 hover:bg-slate-100 hover:text-slate-950' }}">
+
+                                    {{-- Active Glow --}}
+                                    @if ($isActive)
+                                        <span
+                                            class="absolute left-1 top-1/2 h-5 w-1 -translate-y-1/2 rounded-full bg-white/80"></span>
+                                    @endif
+
+                                    {{-- Icon Box --}}
+                                    <span
+                                        class="flex h-9 w-9 shrink-0 items-center justify-center rounded-xl transition-all duration-300
+                                        {{ $isActive
+                                            ? 'bg-white/20 text-white'
+                                            : 'bg-slate-100 text-slate-500 group-hover:bg-white group-hover:text-violet-600 group-hover:shadow-sm' }}">
+
+                                        @if ($item['icon'])
+                                            <i class="{{ $item['icon'] }} mt-1 text-[17px]"></i>
+                                        @else
+                                            <svg class="h-5 w-5" fill="none" stroke="currentColor"
+                                                viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                                    d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z">
+                                                </path>
+                                            </svg>
+                                        @endif
+                                    </span>
+
+                                    <span class="truncate">
+                                        {{ $item['label'] }}
+                                    </span>
+
+                                    @if ($isActive)
+                                        <span class="ml-auto h-2 w-2 rounded-full bg-white"></span>
+                                    @endif
+                                </a>
+                            @endforeach
+                        </div>
+                    </div>
+                @endforeach
+            </div>
+        </nav>
+
+        {{-- Bottom Card --}}
+        <div class="border-t border-slate-100 p-4">
+            <div
+                class="mb-3 rounded-3xl bg-gradient-to-br from-slate-900 to-slate-800 p-4 text-white shadow-xl shadow-slate-900/10">
+                <div class="flex items-center gap-3">
+                    <div class="flex h-10 w-10 items-center justify-center rounded-2xl bg-white/10">
+                        <i class="fi fi-rr-user mt-1 text-sm"></i>
+                    </div>
+
+                    <div class="min-w-0">
+                        <p class="truncate text-sm font-bold">
+                            {{ session('nama_lengkap') ?? 'Developer' }}
+                        </p>
+                        <p class="truncate text-xs text-slate-300">
+                            Admin KampSewa
+                        </p>
+                    </div>
                 </div>
             </div>
-            <div class="overflow-y-auto p-2 overflow-x-hidden flex-grow">
-                <ul class="flex flex-col py-4 space-y-1">
 
-                    {{-- todo MENU UTAMA --}}
-                    <li class="px-5">
-                        <div class="flex flex-row items-center h-8">
-                            <div class="text-sm font-medium tracking-wide text-[#8B97A8]">Utama</div>
-                        </div>
-                    </li>
-                    <li>
-                        <a href="{{ route('home.index') }}"
-                            class="relative flex flex-row rounded-[20px] items-center h-11 focus:outline-none hover:bg-gradient-to-bl hover:from-[#B381F4] hover:to-[#5038ED] text-gray-600 hover:text-white pr-6 {{ $title == 'Dashboard | Developer Kamp Sewa' ? 'bg-gradient-to-bl from-[#B381F4] to-[#5038ED]' : '' }}">
-                            <span class="inline-flex mt-1 justify-center items-center ml-4">
-                                <i
-                                    class="{{ $title == 'Dashboard | Developer Kamp Sewa' ? 'text-white' : '' }} fi fi-rr-house-chimney-window"></i>
-                            </span>
-                            <span
-                                class="ml-2 text-sm tracking-wide truncate {{ $title == 'Dashboard | Developer Kamp Sewa' ? 'text-white' : '' }}">Dashboard</span>
-                        </a>
-                    </li>
-                    <a href="{{ route('notification.index') }}"
-                        class="{{ $title == 'Dashboard | Notification' ? 'bg-gradient-to-bl from-[#B381F4] to-[#5038ED]' : '' }} rounded-[20px] relative flex flex-row items-center h-11 focus:outline-none hover:bg-gradient-to-bl hover:from-[#B381F4] hover:to-[#5038ED] text-gray-600 hover:text-white border-transparent pr-6">
-                        <span class="inline-flex justify-center mt-1 items-center ml-4">
-                            <i class="fi fi-rr-bell {{ $title == 'Dashboard | Notification' ? 'text-white' : '' }}"></i>
-                        </span>
-                        <span
-                            class="ml-2 {{ $title == 'Dashboard | Notification' ? 'text-white' : '' }} text-sm tracking-wide truncate">Notifications</span>
-                    </a>
-                    </li>
+            {{-- Logout --}}
+            <form action="{{ route('logout') }}" method="POST" class="w-full" id="logoutFormSidebar">
+                @csrf
 
-                    {{-- todo MENU CUSTOMER --}}
-                    <li class="px-5">
-                        <div class="flex flex-row items-center h-8">
-                            <div class="text-sm font-medium tracking-wide text-[#8B97A8]">Customer</div>
-                        </div>
-                    </li>
-                    <li>
-                        <a href="{{ route('kelola-pengguna.index') }}"
-                            class="{{ $title == 'Detail Produk Sedang Disewa' ? 'bg-gradient-to-bl from-[#B381F4] to-[#5038ED]' : '' }} {{ $title == 'Detail Produk Disewakan' ? 'bg-gradient-to-bl from-[#B381F4] to-[#5038ED]' : '' }} {{ $title == 'Produk Disewakan' ? 'bg-gradient-to-bl from-[#B381F4] to-[#5038ED]' : '' }} {{ $title == 'Kelola Pengguna | Developer Kamp Sewa' ? 'bg-gradient-to-bl from-[#B381F4] to-[#5038ED]' : '' }} {{ $title == 'Detail Pengguna' ? 'bg-gradient-to-bl from-[#B381F4] to-[#5038ED]' : '' }} rounded-[20px] relative flex flex-row items-center h-11 focus:outline-none hover:bg-gradient-to-bl hover:from-[#B381F4] hover:to-[#5038ED] text-gray-600 hover:text-white border-transparent pr-6">
-                            <span
-                                class="inline-flex {{ $title == 'Detail Produk Sedang Disewa' ? 'text-white' : '' }} {{ $title == 'Detail Produk Disewakan' ? 'text-white' : '' }} {{ $title == 'Produk Disewakan' ? 'text-white' : '' }} {{ $title == 'Kelola Pengguna | Developer Kamp Sewa' ? 'text-white' : '' }} {{ $title == 'Detail Pengguna' ? 'text-white' : '' }} mt-1 justify-center items-center ml-4">
-                                <i class="fi fi-rr-user-gear"></i>
-                            </span>
-                            <span
-                                class="ml-2 text-sm tracking-wide {{ $title == 'Detail Produk Sedang Disewa' ? 'text-white' : '' }} {{ $title == 'Detail Produk Disewakan' ? 'text-white' : '' }} {{ $title == 'Produk Disewakan' ? 'text-white' : '' }} truncate {{ $title == 'Kelola Pengguna | Developer Kamp Sewa' ? 'text-white' : '' }} {{ $title == 'Detail Pengguna' ? 'text-white' : '' }}">Kelola</span>
-                        </a>
-                    </li>
-                    <li>
-                        <a href="{{ route('informasi-pengguna.index') }}"
-                            class="{{ $title == 'Informasi Pengguna' ? 'bg-gradient-to-bl from-[#B381F4] to-[#5038ED]' : '' }} relative flex flex-row items-center h-11 rounded-[20px] focus:outline-none hover:bg-gradient-to-bl hover:from-[#B381F4] hover:to-[#5038ED] text-gray-600 hover:text-white border-transparent pr-6">
-                            <span
-                                class="{{ $title == 'Informasi Pengguna' ? 'text-white' : '' }} inline-flex mt-1 justify-center items-center ml-4">
-                                <i class="fi fi-rr-file-user"></i>
-                            </span>
-                            <span
-                                class="{{ $title == 'Informasi Pengguna' ? 'text-white' : '' }} ml-2 text-sm tracking-wide truncate">Informasi</span>
-                        </a>
-                    </li>
+                <button id="logoutButtonSidebar" type="button"
+                    class="group flex h-12 w-full items-center gap-3 rounded-2xl px-3 text-sm font-semibold text-red-500 transition-all duration-300 hover:bg-red-50 hover:text-red-600">
 
-                    {{-- todo MENU TRANSAKSI --}}
-                    <li class="px-5">
-                        <div class="flex flex-row items-center h-8">
-                            <div class="text-sm font-medium tracking-wide text-[#8B97A8]">Transaksi</div>
-                        </div>
-                    </li>
-                    <li>
-                        <a href="{{ route('iklan.index') }}"
-                            class="rounded-[20px] {{ $title == 'Iklan Customer' ? 'bg-gradient-to-bl from-[#B381F4] to-[#5038ED]' : '' }} relative flex flex-row items-center h-11 hover:bg-gradient-to-bl hover:from-[#B381F4] hover:to-[#5038ED] text-gray-600 hover:text-white border-transparent pr-6">
-                            <span
-                                class="{{ $title == 'Iklan Customer' ? 'text-white' : '' }}' inline-flex mt-1 justify-center items-center ml-4">
-                                <i class="{{ $title == 'Iklan Customer' ? 'text-white' : '' }} fi fi-rr-ad"></i>
-                            </span>
-                            <span
-                                class="{{ $title == 'Iklan Customer' ? 'text-white' : '' }} ml-2 text-sm tracking-wide truncate">Iklan
-                                Customer</span>
-                        </a>
-                    </li>
-                    {{-- <li>
-                        <a href="{{ route('penyewaan.index') }}"
-                            class="{{ $title == 'Penyewaan' ? 'bg-gradient-to-bl from-[#B381F4] to-[#5038ED]' : '' }} relative flex flex-row items-center h-11 hover:bg-gradient-to-bl hover:from-[#B381F4] hover:to-[#5038ED] text-gray-600 hover:text-white border-transparent rounded-full pr-6">
-                            <span class="inline-flex mt-1 justify-center items-center ml-4">
-                                <i class="{{ $title == 'Penyewaan' ? 'text-white' : '' }} fi fi-rr-boxes"></i>
-                            </span>
-                            <span
-                                class="{{ $title == 'Penyewaan' ? 'text-white' : '' }} ml-2 text-sm tracking-wide truncate">Penyewaan</span>
-                        </a>
-                    </li> --}}
+                    <span
+                        class="flex h-9 w-9 items-center justify-center rounded-xl bg-red-50 text-red-500 transition-all duration-300 group-hover:bg-white group-hover:shadow-sm">
+                        <svg class="h-5 w-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"
+                            xmlns="http://www.w3.org/2000/svg">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1">
+                            </path>
+                        </svg>
+                    </span>
 
-                    {{-- todo MENU KEUANGAN --}}
-                    <li class="px-5">
-                        <div class="flex flex-row items-center h-8">
-                            <div class="text-sm font-medium tracking-wide text-[#8B97A8]">Keuangan & Laporan</div>
-                        </div>
-                    </li>
-                    <li>
-                        <a href="{{ route('penghasilan.index') }}"
-                            class="{{ $title == 'Pengeluaran' ? 'bg-gradient-to-bl from-[#B381F4] to-[#5038ED]' : '' }} {{ $title == 'Penghasilan' ? 'bg-gradient-to-bl from-[#B381F4] to-[#5038ED]' : '' }} hover:bg-gradient-to-bl hover:from-[#B381F4] hover:to-[#5038ED] hover:text-white relative flex flex-row items-center h-11 focus:outline-none rounded-full text-gray-600 pr-6">
-                            <span
-                                class="{{ $title == 'Pengeluaran' ? 'text-white' : '' }} {{ $title == 'Penghasilan' ? 'text-white' : '' }} inline-flex mt-1 justify-center items-center ml-4">
-                                <i
-                                    class="{{ $title == 'Pengeluaran' ? 'text-white' : '' }} {{ $title == 'Penghasilan' ? 'text-white' : '' }} fi fi-rr-revenue-alt"></i>
-                            </span>
-                            <span
-                                class="{{ $title == 'Pengeluaran' ? 'text-white' : '' }} {{ $title == 'Penghasilan' ? 'text-white' : '' }} ml-2 text-sm tracking-wide truncate">Penghasilan
-                                & Pengeluaran</span>
-                        </a>
-                    </li>
-                    <li>
-                        <a href="{{ route('rekap-keuangan.index') }}"
-                            class="{{ $title == 'Rekap Keuangan | Developer' ? 'bg-gradient-to-bl from-[#B381F4] to-[#5038ED]' : '' }} hover:bg-gradient-to-bl hover:from-[#B381F4] hover:to-[#5038ED] rounded-full relative flex flex-row items-center h-11 focus:outline-none text-gray-600 hover:text-white pr-6">
-                            <span class="inline-flex mt-1 justify-center items-center ml-4">
-                                <i
-                                    class="{{ $title == 'Rekap Keuangan | Developer' ? 'text-white' : '' }} fi fi-rr-book"></i>
-                            </span>
-                            <span
-                                class="{{ $title == 'Rekap Keuangan | Developer' ? 'text-white' : '' }} ml-2 text-sm tracking-wide truncate">Rekap
-                                Keuangan</span>
-                        </a>
-                    </li>
-
-                    {{-- todo MENU SETTINGS --}}
-                    <li class="px-5">
-                        <div class="flex flex-row items-center h-8">
-                            <div class="text-sm font-medium tracking-wide text-[#8B97A8]">Settings</div>
-                        </div>
-                    </li>
-                    <li>
-                        <a href="{{ route('profile.index', ['nama_lengkap' => session('nama_lengkap')]) }}"
-                            class="{{ $title == 'Profile | Developer Kamp Sewa' ? 'bg-gradient-to-bl from-[#B381F4] to-[#5038ED]' : '' }} rounded-full relative flex flex-row items-center h-11 focus:outline-none hover:bg-gradient-to-bl hover:from-[#B381F4] hover:to-[#5038ED] text-gray-600 hover:text-white pr-6">
-                            <span
-                                class="{{ $title == 'Profile | Developer Kamp Sewa' ? 'text-white' : '' }} inline-flex justify-center items-center ml-4">
-                                <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"
-                                    xmlns="http://www.w3.org/2000/svg">
-                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                                        d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z">
-                                    </path>
-                                </svg>
-                            </span>
-                            <span
-                                class="{{ $title == 'Profile | Developer Kamp Sewa' ? 'text-white' : '' }} ml-2 text-sm tracking-wide truncate">Profile</span>
-                        </a>
-                    </li>
-                    <li>
-                        <form action="{{ route('logout') }}" method="POST" class="w-full" id="logoutForm">
-                            @csrf
-                            <button id="logoutButton"
-                                class="relative w-full flex flex-row items-center h-11 focus:outline-none rounded-full hover:bg-gradient-to-bl hover:from-[#B381F4] hover:to-[#5038ED] text-gray-600 hover:text-white pr-6">
-                                <span class="inline-flex justify-center items-center ml-4">
-                                    <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"
-                                        xmlns="http://www.w3.org/2000/svg">
-                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                                            d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1">
-                                        </path>
-                                    </svg>
-                                </span>
-                                <span class="ml-2 text-sm tracking-wide truncate">Logout</span>
-                            </button>
-                        </form>
-                    </li>
-                </ul>
-            </div>
+                    <span class="truncate">Logout</span>
+                </button>
+            </form>
         </div>
-    </div>
+    </aside>
+
     <script>
-        const logoutButton = document.getElementById('logoutButton');
-        logoutButton.addEventListener('click', (event) => {
-            event.preventDefault();
-            Swal.fire({
-                title: 'Are you sure?',
-                text: "You are about to logout!",
-                icon: 'warning',
-                showCancelButton: true,
-                confirmButtonColor: '#3085d6',
-                cancelButtonColor: '#d33',
-                confirmButtonText: 'Yes, logout!'
-            }).then((result) => {
-                if (result.isConfirmed) {
-                    document.getElementById('logoutForm').submit();
-                } else {
-                    // Handle ketika pengguna membatalkan tindakan logout
-                    Swal.fire('Cancelled', 'Logout cancelled', 'info');
+        document.addEventListener('DOMContentLoaded', function() {
+            const logoutButtonSidebar = document.getElementById('logoutButtonSidebar');
+            const logoutFormSidebar = document.getElementById('logoutFormSidebar');
+
+            if (!logoutButtonSidebar || !logoutFormSidebar) {
+                return;
+            }
+
+            logoutButtonSidebar.addEventListener('click', function(event) {
+                event.preventDefault();
+
+                if (typeof Swal === 'undefined') {
+                    const confirmLogout = confirm('Apakah kamu yakin ingin logout?');
+
+                    if (confirmLogout) {
+                        logoutFormSidebar.submit();
+                    }
+
+                    return;
                 }
+
+                Swal.fire({
+                    title: 'Keluar dari akun?',
+                    text: 'Kamu akan logout dari dashboard KampSewa.',
+                    icon: 'warning',
+                    showCancelButton: true,
+                    confirmButtonText: 'Ya, logout',
+                    cancelButtonText: 'Batal',
+                    reverseButtons: true,
+                    focusCancel: true,
+
+                    customClass: {
+                        popup: 'rounded-[28px] p-6 shadow-2xl',
+                        title: 'text-[22px] font-black text-slate-900',
+                        htmlContainer: 'text-sm text-slate-500',
+                        icon: 'border-0',
+                        actions: 'gap-3',
+                        confirmButton: 'rounded-2xl bg-gradient-to-br from-[#B381F4] to-[#5038ED] px-6 py-3 text-sm font-bold text-white shadow-lg shadow-violet-500/25 hover:shadow-xl',
+                        cancelButton: 'rounded-2xl bg-slate-100 px-6 py-3 text-sm font-bold text-slate-600 hover:bg-slate-200',
+                    },
+
+                    buttonsStyling: false,
+                }).then((result) => {
+                    if (result.isConfirmed) {
+                        logoutFormSidebar.submit();
+                    }
+                });
+            });
+        });
+    </script>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            const sidebar = document.getElementById('developerSidebar');
+            const overlay = document.getElementById('sidebarOverlay');
+            const sidebarToggle = document.getElementById('sidebarToggle');
+            const sidebarClose = document.getElementById('sidebarClose');
+
+            function openSidebar() {
+                if (!sidebar || !overlay) return;
+
+                sidebar.classList.remove('-translate-x-full');
+                sidebar.classList.add('translate-x-0');
+
+                overlay.classList.remove('hidden');
+                document.body.classList.add('overflow-hidden');
+            }
+
+            function closeSidebar() {
+                if (!sidebar || !overlay) return;
+
+                sidebar.classList.add('-translate-x-full');
+                sidebar.classList.remove('translate-x-0');
+
+                overlay.classList.add('hidden');
+                document.body.classList.remove('overflow-hidden');
+            }
+
+            if (sidebarToggle) {
+                sidebarToggle.addEventListener('click', function() {
+                    openSidebar();
+                });
+            }
+
+            if (sidebarClose) {
+                sidebarClose.addEventListener('click', function() {
+                    closeSidebar();
+                });
+            }
+
+            if (overlay) {
+                overlay.addEventListener('click', function() {
+                    closeSidebar();
+                });
+            }
+
+            document.addEventListener('keydown', function(event) {
+                if (event.key === 'Escape') {
+                    closeSidebar();
+                }
+            });
+
+            document.addEventListener('toggle-sidebar', function() {
+                openSidebar();
+            });
+
+            const sidebarLinks = document.querySelectorAll('#developerSidebar a');
+
+            sidebarLinks.forEach(function(link) {
+                link.addEventListener('click', function() {
+                    if (window.innerWidth < 1024) {
+                        closeSidebar();
+                    }
+                });
             });
         });
     </script>

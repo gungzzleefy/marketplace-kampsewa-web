@@ -45,119 +45,23 @@
                             <p class="text-red-500 text-xs mt-1">{{ $message }}</p>
                         @enderror
                     </div>
-                    <div class="--input-foto-depan flex flex-col">
-                        <p class="block uppercase tracking-wide text-gray-700 text-xs font-bold">Input Foto Depan</p>
-                        <p class="text-[12px] font-medium mb-2">Disarankan memiliki rasio ukuran 1:1</p>
-                        <div>
-                            <div>
-                                <img id="foto-depan" class="w-full h-[250px] object-cover"
-                                    src="{{ asset('images/Upload.png') }}" alt="">
+                    <div class="--input-foto-produk flex flex-col col-span-3 mobile-max:col-span-1">
+                        <p class="block uppercase tracking-wide text-gray-700 text-xs font-bold mb-2">Input Foto Produk (Multiple)</p>
+                        <p class="text-[12px] font-medium mb-2">Anda bisa mengunggah banyak foto sekaligus. Disarankan rasio ukuran 1:1</p>
+                        <div class="w-full border-2 border-dashed border-gray-300 p-4 rounded-lg">
+                            <input id="foto_produk" type="file" name="foto_produk[]" multiple accept="image/*"
+                                onchange="previewMultipleImages(event)"
+                                class="block w-full text-sm text-gray-500 file:me-4 file:py-2 file:px-4 file:rounded-lg file:border-0 file:text-sm file:font-semibold file:bg-blue-600 file:text-white hover:file:bg-blue-700 mb-4">
+                            <div id="foto-preview-container" class="grid grid-cols-4 mobile-max:grid-cols-2 gap-4">
+                                <!-- Previews will be injected here -->
                             </div>
-                            <label class="block">
-                                <input id="foto_depan" type="file" name="foto_depan" value="{{ old('foto_depan') }}"
-                                    onchange="previewImageFotoDepan(event)"
-                                    class="block w-full text-sm text-gray-500
-                              file:me-4 file:py-2 file:px-4
-                              file:rounded-lg file:border-0
-                              file:text-sm file:font-semibold
-                              file:bg-blue-600 file:text-white
-                              hover:file:bg-blue-700
-                              file:disabled:opacity-50 file:disabled:pointer-events-none
-                              dark:text-neutral-500
-                              dark:file:bg-blue-500
-                              dark:hover:file:bg-blue-400
-                            ">
-                            </label>
-                            @error('foto_depan')
-                                <p class="text-red-500 text-xs mt-1">{{ $message }}</p>
-                            @enderror
                         </div>
-                    </div>
-                    <div class="--input-foto-belakang flex flex-col">
-                        <p class="block uppercase tracking-wide text-gray-700 text-xs font-bold">Input Foto Belakang
-                            <sup>Opsional</sup></p>
-                        <p class="text-[12px] font-medium mb-2">Disarankan memiliki rasio ukuran 1:1</p>
-                        <div>
-                            <div>
-                                <img id="foto-belakang" class="w-full h-[250px] object-cover"
-                                    src="{{ asset('images/Upload.png') }}" alt="">
+                        <div class="mt-4 w-full border-2 border-dashed border-gray-300 p-4 rounded-lg">
+                            <p class="block uppercase tracking-wide text-gray-700 text-xs font-bold mb-2">Atau Paste External Image URLs</p>
+                            <div id="url-inputs-container" class="flex flex-col gap-2 mb-2">
+                                <input type="url" name="foto_produk_url[]" placeholder="https://example.com/image.jpg" class="appearance-none block w-full bg-gray-200 text-gray-700 border border-gray-200 rounded py-2 px-4 leading-tight focus:outline-none focus:bg-white focus:border-gray-500">
                             </div>
-                            <label class="block">
-                                <input id="foto_belakang" type="file" name="foto_belakang"
-                                    value="{{ old('foto_belakang') }}" onchange="previewImageFotoBelakang(event)"
-                                    class="block w-full text-sm text-gray-500
-                              file:me-4 file:py-2 file:px-4
-                              file:rounded-lg file:border-0
-                              file:text-sm file:font-semibold
-                              file:bg-blue-600 file:text-white
-                              hover:file:bg-blue-700
-                              file:disabled:opacity-50 file:disabled:pointer-events-none
-                              dark:text-neutral-500
-                              dark:file:bg-blue-500
-                              dark:hover:file:bg-blue-400
-                            ">
-                            </label>
-                            @error('foto_belakang')
-                                <p class="text-red-500 text-xs mt-1">Foto Harus Di isi!</p>
-                            @enderror
-                        </div>
-                    </div>
-                    <div class="--input-foto-kiri flex flex-col">
-                        <p class="block uppercase tracking-wide text-gray-700 text-xs font-bold">Input Foto Kiri
-                            <sup>Opsional</sup></p>
-                        <p class="text-[12px] font-medium mb-2">Disarankan memiliki rasio ukuran 1:1</p>
-                        <div>
-                            <div>
-                                <img id="foto-kiri" class="w-full h-[250px] object-cover"
-                                    src="{{ asset('images/Upload.png') }}" alt="">
-                            </div>
-                            <label class="block">
-                                <input id="foto_kiri" type="file" name="foto_kiri" value="{{ old('foto_kiri') }}"
-                                    onchange="previewImageFotoKiri(event)"
-                                    class="block w-full text-sm text-gray-500
-                              file:me-4 file:py-2 file:px-4
-                              file:rounded-lg file:border-0
-                              file:text-sm file:font-semibold
-                              file:bg-blue-600 file:text-white
-                              hover:file:bg-blue-700
-                              file:disabled:opacity-50 file:disabled:pointer-events-none
-                              dark:text-neutral-500
-                              dark:file:bg-blue-500
-                              dark:hover:file:bg-blue-400
-                            ">
-                            </label>
-                            @error('foto_kiri')
-                                <p class="text-red-500 text-xs mt-1">{{ $message }}</p>
-                            @enderror
-                        </div>
-                    </div>
-                    <div class="--input-foto-kanan flex flex-col">
-                        <p class="block uppercase tracking-wide text-gray-700 text-xs font-bold">Input Foto Kanan
-                            <sup>Opsional</sup></p>
-                        <p class="text-[12px] font-medium mb-2">Disarankan memiliki rasio ukuran 1:1</p>
-                        <div>
-                            <div>
-                                <img id="foto-kanan" class="w-full h-[250px] object-cover"
-                                    src="{{ asset('images/Upload.png') }}" alt="">
-                            </div>
-                            <label class="block">
-                                <input id="foto_kanan" type="file" name="foto_kanan" value="{{ old('foto_kanan') }}"
-                                    onchange="previewImageFotoKanan(event)"
-                                    class="block w-full text-sm text-gray-500
-                              file:me-4 file:py-2 file:px-4
-                              file:rounded-lg file:border-0
-                              file:text-sm file:font-semibold
-                              file:bg-blue-600 file:text-white
-                              hover:file:bg-blue-700
-                              file:disabled:opacity-50 file:disabled:pointer-events-none
-                              dark:text-neutral-500
-                              dark:file:bg-blue-500
-                              dark:hover:file:bg-blue-400
-                            ">
-                            </label>
-                            @error('foto_kanan')
-                                <p class="text-red-500 text-xs mt-1">{{ $message }}</p>
-                            @enderror
+                            <button type="button" onclick="addUrlInput()" class="text-[12px] bg-gray-800 text-white py-1 px-3 rounded hover:bg-gray-700">+ Tambah URL Baru</button>
                         </div>
                     </div>
                 </div>
@@ -279,45 +183,32 @@
             size.remove();
         }
 
-
-        function previewImageFotoDepan(event) {
-            const input = event.target;
-            const reader = new FileReader();
-            reader.onload = function() {
-                const preview = document.getElementById('foto-depan');
-                preview.src = reader.result;
-            };
-            reader.readAsDataURL(input.files[0]);
+        function previewMultipleImages(event) {
+            const container = document.getElementById('foto-preview-container');
+            container.innerHTML = '';
+            const files = event.target.files;
+            if (files) {
+                Array.from(files).forEach(file => {
+                    const reader = new FileReader();
+                    reader.onload = function(e) {
+                        const img = document.createElement('img');
+                        img.src = e.target.result;
+                        img.className = 'w-full h-[150px] object-cover rounded-lg border border-gray-300';
+                        container.appendChild(img);
+                    };
+                    reader.readAsDataURL(file);
+                });
+            }
         }
 
-        function previewImageFotoBelakang(event) {
-            const input = event.target;
-            const reader = new FileReader();
-            reader.onload = function() {
-                const preview = document.getElementById('foto-belakang');
-                preview.src = reader.result;
-            };
-            reader.readAsDataURL(input.files[0]);
-        }
-
-        function previewImageFotoKiri(event) {
-            const input = event.target;
-            const reader = new FileReader();
-            reader.onload = function() {
-                const preview = document.getElementById('foto-kiri');
-                preview.src = reader.result;
-            };
-            reader.readAsDataURL(input.files[0]);
-        }
-
-        function previewImageFotoKanan(event) {
-            const input = event.target;
-            const reader = new FileReader();
-            reader.onload = function() {
-                const preview = document.getElementById('foto-kanan');
-                preview.src = reader.result;
-            };
-            reader.readAsDataURL(input.files[0]);
+        function addUrlInput() {
+            const container = document.getElementById('url-inputs-container');
+            const input = document.createElement('input');
+            input.type = 'url';
+            input.name = 'foto_produk_url[]';
+            input.placeholder = 'https://example.com/image.jpg';
+            input.className = 'appearance-none block w-full bg-gray-200 text-gray-700 border border-gray-200 rounded py-2 px-4 leading-tight focus:outline-none focus:bg-white focus:border-gray-500 mb-2';
+            container.appendChild(input);
         }
 
         document.getElementById('simpan-data-produk').addEventListener('click', (event) => {
@@ -325,7 +216,8 @@
             let namaProduk = document.getElementById('nama_produk').value;
             let deskripsiProduk = document.getElementById('deskripsi_produk').value;
             let kategoriProduk = document.getElementById('grid-state').value;
-            let fotoDepan = document.getElementById('foto_depan').files[0];
+            let fotoProduk = document.getElementById('foto_produk').files.length;
+            let fotoUrls = Array.from(document.querySelectorAll('input[name="foto_produk_url[]"]')).filter(input => input.value.trim() !== '').length;
             let warna = document.getElementById('warna0').value;
             let stok = document.getElementById('stok').value;
             let hargaSewa = document.getElementById('harga_sewa').value;
@@ -354,10 +246,10 @@
                     confirmButtonText: 'OK'
                 });
                 return;
-            } else if (!fotoDepan) {
+            } else if (fotoProduk === 0 && fotoUrls === 0) {
                 Swal.fire({
-                    title: 'Belum Mengisi Foto Depan',
-                    text: 'Silakan isikan foto produk sebelum menyimpan.',
+                    title: 'Belum Mengisi Foto Produk',
+                    text: 'Silakan unggah setidaknya satu foto atau masukkan URL eksternal sebelum menyimpan.',
                     icon: 'warning',
                     confirmButtonText: 'OK'
                 });

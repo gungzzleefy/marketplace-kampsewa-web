@@ -2,6 +2,7 @@
 
 namespace Database\Factories;
 
+use App\Models\Penyewaan;
 use Illuminate\Database\Eloquent\Factories\Factory;
 
 /**
@@ -17,7 +18,7 @@ class PembayaranPenyewaanFactory extends Factory
     public function definition(): array
     {
         return [
-            'id_penyewaan'=>$this->faker->numberBetween(1,500),
+            'id_penyewaan'=>Penyewaan::inRandomOrder()->first()?->id ?? Penyewaan::factory(),
             'bukti_pembayaran'=>$this->faker->imageUrl(),
             'jaminan_sewa'=>$this->faker->imageUrl(),
             'jumlah_pembayaran'=>$this->faker->numberBetween(10000,100000),

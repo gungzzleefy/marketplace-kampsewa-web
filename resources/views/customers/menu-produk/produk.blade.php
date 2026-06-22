@@ -108,8 +108,9 @@
                                     <div class="--card-item flex flex-col gap-2">
                                         <div class="--header">
                                             <img class="w-[250px] mobile-max:w-full mobile-max:h-full h-[250px] medium-screen:w-[200px] medium-screen:h-[200px] object-cover rounded-[30px]"
-                                                src="{{ asset('assets/image/customers/produk/' . $item->foto_depan) }}"
-                                                alt="">
+                                                src="{{ str_starts_with($item->foto_depan ?? '', 'http') ? $item->foto_depan : \App\Helpers\PhotoHelper::getThumbnailUrl($item) }}"
+                                                alt="{{ $item->nama_produk }}"
+                                                onerror="this.onerror=null;this.src='{{ asset('images/illustration/filling-survey.png') }}';">
                                         </div>
                                         <div class="--body">
                                             <p

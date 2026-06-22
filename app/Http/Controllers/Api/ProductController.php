@@ -3,6 +3,7 @@
 namespace App\Http\Controllers\Api;
 
 use App\Http\Controllers\Controller;
+use App\Helpers\PhotoHelper;
 use App\Models\Produk;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
@@ -34,7 +35,11 @@ class ProductController extends Controller
             ->orderByDesc(DB::raw('AVG(rating_produk.rating)'))
             ->orderBy(DB::raw('MIN(detail_variant_produk.harga_sewa)'))
             ->limit(6)
-            ->get();
+            ->get()
+            ->map(function ($item) {
+                $item->foto_depan = str_starts_with($item->foto_depan ?? '', 'http') ? $item->foto_depan : PhotoHelper::getPhotoUrl($item->foto_depan, 'internal');
+                return $item;
+            });
 
         // Check apakah data ada
         if ($produk->isEmpty()) {
@@ -124,7 +129,11 @@ class ProductController extends Controller
         $produk->groupBy('produk.id', 'produk.id_user', 'users.name', 'produk.nama', 'produk.foto_depan');
 
         // Eksekusi query dan ambil hasil
-        $data = $produk->get();
+        $data = $produk->get()
+            ->map(function ($item) {
+                $item->foto_depan = str_starts_with($item->foto_depan ?? '', 'http') ? $item->foto_depan : PhotoHelper::getPhotoUrl($item->foto_depan, 'internal');
+                return $item;
+            });
 
         return response()->json([
             'message' => 'success',
@@ -158,7 +167,11 @@ class ProductController extends Controller
                     $query->where('produk.nama', $parameter)
                         ->orWhere('produk.id', $parameter);
                 })
-                ->get();
+                ->get()
+                ->map(function ($item) {
+                    $item->foto_depan = str_starts_with($item->foto_depan ?? '', 'http') ? $item->foto_depan : PhotoHelper::getPhotoUrl($item->foto_depan, 'internal');
+                    return $item;
+                });
 
             // Query untuk mendapatkan produk dan variannya dengan filter
             $filtered_query = Produk::leftJoin('variant_produk', 'produk.id', '=', 'variant_produk.id_produk')
@@ -189,7 +202,11 @@ class ProductController extends Controller
                 $filtered_query->where('detail_variant_produk.ukuran', $ukuran);
             }
 
-            $filtered_results = $filtered_query->get();
+            $filtered_results = $filtered_query->get()
+                ->map(function ($item) {
+                    $item->foto_depan = str_starts_with($item->foto_depan ?? '', 'http') ? $item->foto_depan : PhotoHelper::getPhotoUrl($item->foto_depan, 'internal');
+                    return $item;
+                });
 
             if ($all_variants->isEmpty()) {
                 return response()->json([
@@ -216,7 +233,8 @@ class ProductController extends Controller
             $warna = request()->query('warna');
             $ukuran = request()->query('ukuran');
 
-            $tb_produk = Produk::leftJoin('variant_produk', 'produk.id', '=', 'variant_produk.id_produk')
+            $tb_produk = Produk::with('foto')
+                ->leftJoin('variant_produk', 'produk.id', '=', 'variant_produk.id_produk')
                 ->leftJoin('detail_variant_produk', 'variant_produk.id', '=', 'detail_variant_produk.id_variant_produk')
                 ->leftJoin('rating_produk', 'produk.id', '=', 'rating_produk.id_produk')
                 ->leftJoin('users', 'users.id', '=', 'rating_produk.id_user')
@@ -257,7 +275,36 @@ class ProductController extends Controller
                 $tb_produk->where('detail_variant_produk.ukuran', 'like', '%' . $ukuran . '%');
             }
 
-            $all_variants = $tb_produk->get();
+            $all_variants = $tb_produk->get()
+                ->map(function ($item) {
+                    // Transform foto URLs
+                    $item->foto_depan = str_starts_with($item->foto_depan ?? '', 'http') ? $item->foto_depan : PhotoHelper::getPhotoUrl($item->foto_depan, 'internal');
+                    $item->foto_belakang = $item->foto_belakang !== 'Belum di isi' 
+                        ? (str_starts_with($item->foto_belakang ?? '', 'http') ? $item->foto_belakang : PhotoHelper::getPhotoUrl($item->foto_belakang, 'internal'))
+                        : null;
+                    $item->foto_kiri = $item->foto_kiri !== 'Belum di isi' 
+                        ? (str_starts_with($item->foto_kiri ?? '', 'http') ? $item->foto_kiri : PhotoHelper::getPhotoUrl($item->foto_kiri, 'internal'))
+                        : null;
+                    $item->foto_kanan = $item->foto_kanan !== 'Belum di isi' 
+                        ? (str_starts_with($item->foto_kanan ?? '', 'http') ? $item->foto_kanan : PhotoHelper::getPhotoUrl($item->foto_kanan, 'internal'))
+                        : null;
+
+                    // Tambahkan array foto dari relasi
+                    if ($item->foto && $item->foto->count() > 0) {
+                        $item->foto_array = $item->foto->map(function ($f) {
+                            return [
+                                'id' => $f->id,
+                                'url' => PhotoHelper::getPhotoUrl($f->url_foto, $f->tipe_sumber),
+                                'urutan' => $f->urutan,
+                                'tipe_sumber' => $f->tipe_sumber
+                            ];
+                        })->toArray();
+                    } else {
+                        $item->foto_array = [];
+                    }
+
+                    return $item;
+                });
 
             if ($all_variants->isEmpty()) {
                 return response()->json([

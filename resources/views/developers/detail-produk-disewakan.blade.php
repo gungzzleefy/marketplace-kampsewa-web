@@ -8,22 +8,18 @@
             </a></div>
         <div class="_part-one w-full grid grid-cols-3 gap-8">
             <div class="_component-image-produk flex flex-col gap-2 w-full">
-                <div class="_main-image"><img class="rounded-[10px] object-cover w-full h-full"
-                        src="{{ asset('assets/image/customers/produk/gerber.png') }}" alt=""></div>
+                <div class="_main-image"><img class="rounded-[10px] object-cover w-full h-[350px]"
+                        src="{{ \App\Helpers\PhotoHelper::getThumbnailUrl($produk) }}" alt="{{ $produk->nama }}"></div>
                 <div class="_all-image w-full grid grid-cols-4 gap-2">
-                    <img class="w-full object-cover h-[70px] rounded-[10px]"
-                        src="{{ asset('assets/image/customers/produk/shopping.webp') }}" alt="">
-                    <img class="w-full object-cover h-[70px] rounded-[10px]"
-                        src="{{ asset('assets/image/customers/produk/shopping.webp') }}" alt="">
-                    <img class="w-full object-cover h-[70px] rounded-[10px]"
-                        src="{{ asset('assets/image/customers/produk/shopping.webp') }}" alt="">
-                    <img class="w-full object-cover h-[70px] rounded-[10px]"
-                        src="{{ asset('assets/image/customers/produk/shopping.webp') }}" alt="">
+                    @foreach($produk->foto as $p)
+                        <img class="w-full object-cover h-[70px] rounded-[10px]"
+                            src="{{ \App\Helpers\PhotoHelper::getPhotoUrl($p->url_foto, $p->tipe_sumber) }}" alt="">
+                    @endforeach
                 </div>
             </div>
             <div class="_component-detail-produk">
                 <div class="_nama-produk">
-                    <h1 class="text-[18px] font-medium">ALLTREK Headlamp CAPTUN Hiking & Camping LED Portable - Black</h1>
+                    <h1 class="text-[18px] font-medium">{{ $produk->nama }}</h1>
                 </div>
                 <div class="_rating-totaldisewa mt-2 flex gap-2 items-center">
                     <div class="_totaldisewa font-medium text-[14px]">Total Disewa <font class="text-gray-400">57</font>
@@ -37,30 +33,24 @@
                 </div>
                 <div class="_harga-sewa mt-2">
                     <p class="text-[14px] font-medium text-gray-400">Harga Sewa:</p>
-                    <p class="text-[28px] font-bold">Rp. 15.000 <sup class="text-[14px] font-medium">/Hari</sup></p>
+                    <p class="text-[28px] font-bold">Rp. {{ number_format($harga_sewa_terkecil, 0, ',', '.') }} <sup class="text-[14px] font-medium">/Hari</sup></p>
                 </div>
                 <div class="_divider mt-4 w-full h-[1px] rounded-full bg-gray-300"></div>
                 <div class="_stok-status-category mt-4">
                     <div class="_stok">
-                        <font class="text-gray-400">Stok</font>: 20
+                        <font class="text-gray-400">Stok</font>: {{ $stok_produk }}
                     </div>
                     <div class="_status-produk">
-                        <font class="text-gray-400">Status</font>: Tersedia
+                        <font class="text-gray-400">Status</font>: <span class="capitalize">{{ $produk->status }}</span>
                     </div>
                     <div class="_category-produk">
-                        <font class="text-gray-400">Kategori</font>: Backpack
+                        <font class="text-gray-400">Kategori</font>: {{ $produk->kategori }}
                     </div>
                 </div>
                 <div class="_divider mt-4 w-full h-[1px] rounded-full bg-gray-300"></div>
                 <div class="_deskripsi mt-4">
                     <p class="text-[14px] font-medium text-gray-400">Deskripsi:</p>
-                    <p class="text-[14px]">Lorem ipsum dolor sit amet, consectetur adipisicing elit. Saepe voluptatibus
-                        recusandae, cupiditate dolores voluptate architecto. Dolore eveniet quam magni voluptate, at quod
-                        recusandae error pariatur fugit distinctio explicabo repudiandae! In consectetur voluptate quasi,
-                        voluptatem rem ratione iste aperiam deleniti est eum nisi autem molestias corrupti, amet architecto
-                        doloremque! Temporibus dignissimos earum, voluptatum voluptatibus ex inventore. Eligendi soluta ipsa
-                        quidem deserunt cum hic eos, alias quia sint amet magnam accusamus odit sunt nostrum reiciendis iure
-                        similique et possimus fuga voluptatem corporis!</p>
+                    <p class="text-[14px]">{{ $produk->deskripsi }}</p>
                 </div>
             </div>
             <div class="_component-produk-pernah-disewa-oleh">

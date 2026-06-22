@@ -1,40 +1,62 @@
-{{-- todo container card --}}
-<div class="_card-income relative w-full gradient-1 overflow-hidden rounded-[20px]">
+@php
+    $rawPemasukanChange = (float) str_replace(',', '.', $percentagePemasukanChange);
+    $progressPemasukan = min(max(abs($rawPemasukanChange), 0), 100);
+    $visualProgressPemasukan = $progressPemasukan > 0 && $progressPemasukan < 6 ? 6 : $progressPemasukan;
+@endphp
 
-    {{-- todo image background --}}
-    <img class="object-cover shadow-box-shadow-11 w-full h-full" src="{{ asset('assets/accessories/gradient 3-04 1 1.png') }}"
-        alt="">
+<div class="relative min-h-[260px] w-full overflow-hidden rounded-[28px] bg-gradient-to-br from-[#B381F4] to-[#5038ED] p-5 shadow-xl shadow-violet-500/20">
 
-        {{-- todo content --}}
-    <div
-        class="_wrapper-content-card h-full grid grid-cols-1 justify-between w-full top-0 left-0 p-[1rem] absolute z-10">
+    <img class="absolute inset-0 h-full w-full object-cover opacity-30"
+        src="{{ asset('assets/accessories/gradient 3-04 1 1.png') }}" alt="">
 
-        {{-- todo bagian title card --}}
-        <div class="w-full flex justify-between items-center">
-            <div class="w-auto">
-                <p class="text-white text-[16px]">Penghasilan</p>
-                <div class="flex gap-[10px] items-center">
-                    <h1 class="text-white text-[24px]">Rp. {{ $pemasukan_bulan_ini }}</h1>
-                    <div class="p-[5px] bg-[#F2F5FD] rounded-full">
-                        <p class="font-medium text-[#2D53DA] text-[12px]">{{ $percentagePemasukanChange }}%</p>
-                    </div>
+    <div class="absolute -right-10 -top-10 h-32 w-32 rounded-full bg-white/20 blur-2xl"></div>
+    <div class="absolute -bottom-10 -left-10 h-32 w-32 rounded-full bg-white/10 blur-2xl"></div>
+
+    <div class="relative z-10 flex h-full min-h-[220px] flex-col justify-between">
+
+        <div class="flex items-start justify-between gap-4">
+            <div class="min-w-0">
+                <p class="text-sm font-semibold text-white/75">
+                    Penghasilan
+                </p>
+
+                <div class="mt-2 flex flex-wrap items-center gap-2">
+                    <h1 class="break-words text-2xl font-black tracking-tight text-white sm:text-[26px]">
+                        Rp. {{ $pemasukan_bulan_ini }}
+                    </h1>
+
+                    <span class="rounded-full bg-white/90 px-3 py-1 text-xs font-black text-[#5038ED]">
+                        {{ $percentagePemasukanChange }}%
+                    </span>
                 </div>
             </div>
-            <div
-                class="_icon-more flex justify-center items-center cursor-pointer w-[35px] h-[35px] bg-[#F2F5FD] hover:bg-[#CFDCFF] rounded-full">
-                <a href="{{ route('penghasilan.index') }}"><i class="bi bi-arrow-up-right"></i></a>
+
+            <a href="{{ route('penghasilan.index') }}"
+                class="flex h-10 w-10 shrink-0 items-center justify-center rounded-2xl bg-white/90 text-slate-900 shadow-sm transition-all duration-300 hover:-translate-y-0.5 hover:bg-white">
+                <i class="bi bi-arrow-up-right"></i>
+            </a>
+        </div>
+
+        <div class="mt-8">
+            <p class="mb-3 text-xs font-medium text-white/80">
+                Bulan {{ Carbon\Carbon::now()->subMonth()->format('F') }}
+                <strong class="font-black text-white">
+                    Rp. {{ $pemasukan_bulan_lalu }}
+                </strong>
+            </p>
+
+            <div class="relative h-12 w-full overflow-hidden rounded-2xl bg-white/20 p-1">
+                <div class="h-full rounded-xl bg-white/90 shadow-sm transition-all duration-700"
+                    style="width: {{ number_format($visualProgressPemasukan, 2, '.', '') }}%;">
+                </div>
+
+                <div class="absolute inset-0 flex items-center justify-center">
+                    <p class="text-sm font-black text-white drop-shadow">
+                        {{ $percentagePemasukanChange }}%
+                    </p>
+                </div>
             </div>
         </div>
 
-        {{-- todo bagian statistic --}}
-        <div class="_static">
-            <p class="text-[12px] mb-[10px] text-white">Bulan {{ Carbon\Carbon::now()->subMonth()->format('F') }} <strong>Rp. {{ $pemasukan_bulan_lalu }}</strong></p>
-            <div class="w-full h-[40px] bg-[#F2F5FD] rounded-[10px]">
-                <div class="w-[{{ $percentagePemasukanChange }}%] bg-corak flex justify-center items-center rounded-[10px] h-full">
-                    <p class="text-white font-medium text-[16px]">{{ $percentagePemasukanChange }}%</p>
-                </div>
-            </div>
-        </div>
     </div>
 </div>
-<div class=

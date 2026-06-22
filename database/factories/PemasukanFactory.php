@@ -2,6 +2,7 @@
 
 namespace Database\Factories;
 
+use App\Models\User;
 use Illuminate\Database\Eloquent\Factories\Factory;
 
 /**
@@ -17,7 +18,7 @@ class PemasukanFactory extends Factory
     public function definition(): array
     {
         return [
-            'id_user' => $this->faker->numberBetween(1, 500),
+            'id_user' => User::inRandomOrder()->first()?->id ?? User::factory(),
             'sumber' => $this->faker->randomElement(['Iklan', 'Transaksi Penyewaan', 'Modal']),
             'deskripsi' => $this->faker->sentence,
             'nominal' => $this->faker->numberBetween(1000000, 100000000),

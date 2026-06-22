@@ -2,6 +2,7 @@
 
 namespace Database\Factories;
 
+use App\Models\VariantProduk;
 use Illuminate\Database\Eloquent\Factories\Factory;
 
 /**
@@ -17,7 +18,7 @@ class DetailVariantProdukFactory extends Factory
     public function definition(): array
     {
         return [
-            'id_variant_produk' => $this->faker->numberBetween(1, 500),
+            'id_variant_produk' => VariantProduk::inRandomOrder()->first()?->id ?? VariantProduk::factory(),
             'ukuran' => $this->faker->randomElement(['S', 'M', 'L', 'XL', 'XXL']),
             'stok' => $this->faker->numberBetween(1, 300),
             'harga_sewa' => $this->faker->numberBetween(10000, 100000),

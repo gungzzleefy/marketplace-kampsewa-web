@@ -2,6 +2,8 @@
 
 namespace Database\Factories;
 
+use App\Models\Penyewaan;
+use App\Models\Produk;
 use Illuminate\Database\Eloquent\Factories\Factory;
 
 /**
@@ -17,8 +19,8 @@ class DetailPenyewaanFactory extends Factory
     public function definition(): array
     {
         return [
-            'id_penyewaan'=>$this->faker->numberBetween(1, 500),
-            'id_produk'=>$this->faker->numberBetween(1,500),
+            'id_penyewaan'=>Penyewaan::inRandomOrder()->first()?->id ?? Penyewaan::factory(),
+            'id_produk'=>Produk::inRandomOrder()->first()?->id ?? Produk::factory(),
             'warna_produk'=>$this->faker->colorName(),
             'ukuran' => $this->faker->randomElement(['XS','S','M','L','XL','XXL','XXL']),
             'qty'=>$this->faker->numberBetween(1,200),

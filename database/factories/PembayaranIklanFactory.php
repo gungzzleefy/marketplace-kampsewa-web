@@ -2,6 +2,8 @@
 
 namespace Database\Factories;
 
+use App\Models\Iklan;
+use App\Models\User;
 use Illuminate\Database\Eloquent\Factories\Factory;
 
 /**
@@ -17,8 +19,8 @@ class PembayaranIklanFactory extends Factory
     public function definition(): array
     {
         return [
-            'id_iklan' => $this->faker->numberBetween(1, 500),
-            'id_user' => $this->faker->numberBetween(1, 500),
+            'id_iklan' => Iklan::inRandomOrder()->first()?->id ?? Iklan::factory(),
+            'id_user' => User::inRandomOrder()->first()?->id ?? User::factory(),
             'metode_bayar' => 'Transfer',
             'total_bayar' => $this->faker->numberBetween(100000, 1000000),
             'status_bayar' => 'Lunas',

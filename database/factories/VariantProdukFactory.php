@@ -2,6 +2,7 @@
 
 namespace Database\Factories;
 
+use App\Models\Produk;
 use Illuminate\Database\Eloquent\Factories\Factory;
 
 /**
@@ -17,7 +18,7 @@ class VariantProdukFactory extends Factory
     public function definition(): array
     {
         return [
-            'id_produk' => $this->faker->numberBetween(1, 500),
+            'id_produk' => Produk::inRandomOrder()->first()?->id ?? Produk::factory(),
             'warna' => $this->faker->colorName(),
             'created_at' => $this->faker->dateTimeBetween('-1 year', 'now'),
         ];
