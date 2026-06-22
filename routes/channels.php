@@ -1,18 +1,15 @@
 <?php
 
+use App\Models\Feedback;
 use Illuminate\Support\Facades\Broadcast;
 
-/*
-|--------------------------------------------------------------------------
-| Broadcast Channels
-|--------------------------------------------------------------------------
-|
-| Here you may register all of the event broadcasting channels that your
-| application supports. The given channel authorization callbacks are
-| used to check if an authenticated user can listen to the channel.
-|
-*/
+Broadcast::channel('feedback.admin', function ($user) {
+    return (int) $user->type === 1;
+});
 
-Broadcast::channel('App.Models.User.{id}', function ($user, $id) {
-    return (int) $user->id === (int) $id;
+Broadcast::channel('feedback.thread.{feedback}', function ($user, Feedback $feedback) {
+    $isCustomerOwner = (int) $user->id === (int) $feedback->id_user;
+    $isDeveloper = (int) $user->type === 1;
+
+    return $isCustomerOwner || $isDeveloper;
 });

@@ -4,6 +4,7 @@ use App\Http\Controllers\Api\Auth\LoginController;
 use App\Http\Controllers\Api\Auth\LupaPassword;
 use App\Http\Controllers\Api\Auth\RegisterController;
 use App\Http\Controllers\Api\ChartWebController;
+use App\Http\Controllers\Api\FeedbackChatController;
 use App\Http\Controllers\Api\IklanControlller;
 use App\Http\Controllers\Api\ProductController;
 use App\Http\Controllers\Api\RiwayatPencarianController;
@@ -157,5 +158,14 @@ Route::middleware('auth:sanctum')->group(function () {
             Route::get('/', 'riwayat');
             Route::get('/rincian-produk', 'rincianProduk');
             Route::post('/bayar-sekarang', 'bayarSekarang');
+        });
+
+    Route::prefix('feedback')
+        ->controller(FeedbackChatController::class)
+        ->group(function () {
+            Route::get('/', 'index');
+            Route::post('/', 'storeFeedback');
+            Route::get('/{feedback}/messages', 'messages');
+            Route::post('/{feedback}/messages', 'storeMessage');
         });
 });

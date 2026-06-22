@@ -17,4 +17,19 @@ class Feedback extends Model
         'kriteria',
         'status',
     ];
+
+     public function user()
+    {
+        return $this->belongsTo(User::class, 'id_user');
+    }
+
+    public function messages()
+    {
+        return $this->hasMany(FeedbackMessage::class, 'feedback_id');
+    }
+
+    public function latestMessage()
+    {
+        return $this->hasOne(FeedbackMessage::class, 'feedback_id')->latestOfMany();
+    }
 }

@@ -89,10 +89,33 @@ Route::middleware('auth')->group(function () {
         |--------------------------------------------------------------------------
         */
 
-        Route::prefix('notification')->name('notification.')->controller(NotificationController::class)->group(function () {
-            Route::get('/', 'index')->name('index');
-            Route::post('/balas-semua-feedback', 'balasSemuaFeedback')->name('balas-semua-feedback');
-        });
+        Route::prefix('notification')
+            ->name('notification.')
+            ->controller(NotificationController::class)
+            ->group(function () {
+                Route::get('/', 'index')->name('index');
+
+                Route::post('/balas-semua-feedback', 'balasSemuaFeedback')
+                    ->name('balas-semua-feedback');
+
+                Route::post('/balas-terpilih-feedback', 'balasTerpilihFeedback')
+                    ->name('balas-terpilih-feedback');
+
+                Route::delete('/delete-selected-feedback', 'deleteSelectedFeedback')
+                    ->name('delete-selected-feedback');
+
+                Route::delete('/delete-selected-reply', 'deleteSelectedReply')
+                    ->name('delete-selected-reply');
+
+                Route::get('/feedback/{feedback}/messages', 'messages')
+                    ->name('feedback-messages.index');
+
+                Route::post('/feedback/{feedback}/messages', 'storeMessage')
+                    ->name('feedback-messages.store');
+
+                Route::get('/customer-replies', 'customerReplies')
+                    ->name('customer-replies');
+            });
 
         /*
         |--------------------------------------------------------------------------

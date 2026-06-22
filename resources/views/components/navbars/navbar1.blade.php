@@ -42,10 +42,10 @@
 
                         <i class="fi fi-rr-bell mt-1 text-[18px]"></i>
 
-                        <span id="count-nofication"
-                            class="{{ $notificationCount > 0 ? 'flex' : 'hidden' }} absolute -right-2 -top-2 h-6 min-w-6 items-center justify-center rounded-full border-2 border-white bg-red-500 px-1.5 text-[11px] font-black text-white shadow-md">
-                            {{ $notificationCount }}
-                        </span>
+                        <span id="count-notification"
+    class="{{ $notificationCount > 0 ? 'flex' : 'hidden' }} absolute -right-2 -top-2 h-6 min-w-6 items-center justify-center rounded-full border-2 border-white bg-red-500 px-1.5 text-[11px] font-black text-white shadow-md">
+    {{ $notificationCount }}
+</span>
                     </button>
                 </div>
 
@@ -91,12 +91,12 @@
                             </p>
                         </div>
 
-                        @if ($notificationCount > 0)
-                            <span
-                                class="rounded-full bg-violet-50 px-3 py-1 text-xs font-bold text-violet-600">
-                                {{ $notificationCount }} baru
-                            </span>
-                        @endif
+                       @if ($notificationCount > 0)
+    <span id="dropdown-notification-badge"
+        class="rounded-full bg-violet-50 px-3 py-1 text-xs font-bold text-violet-600">
+        {{ $notificationCount }} baru
+    </span>
+@endif
                     </div>
 
                     {{-- Content Dropdown --}}
@@ -163,27 +163,51 @@
 <script>
     const iconButton = document.getElementById('iconButton');
     const dropdownNotification = document.getElementById('dropdown-notification');
-    const countNotification = document.getElementById('count-nofication');
+    const countNotification = document.getElementById('count-notification');
+    const dropdownNotificationBadge = document.getElementById('dropdown-notification-badge');
     const sidebarToggle = document.getElementById('sidebarToggle');
 
     let notificationMarkedAsRead = false;
+
+    function hideNotificationBadges() {
+        if (countNotification) {
+            countNotification.innerText = '0';
+            countNotification.classList.add('hidden');
+            countNotification.classList.remove('flex');
+        }
+
+        if (dropdownNotificationBadge) {
+            dropdownNotificationBadge.classList.add('hidden');
+        }
+    }
 
     if (iconButton && dropdownNotification) {
         iconButton.addEventListener('click', (e) => {
             e.preventDefault();
             e.stopPropagation();
 
+            const willOpen = dropdownNotification.classList.contains('hidden');
+
             dropdownNotification.classList.toggle('hidden');
 
-            if (!notificationMarkedAsRead) {
+            /*
+             | Badge langsung dihilangkan saat dropdown dibuka.
+             | Tidak menunggu fetch berhasil supaya UI langsung berubah.
+             */
+            if (willOpen) {
+                hideNotificationBadges();
+            }
+
+            if (willOpen && !notificationMarkedAsRead) {
                 notificationMarkedAsRead = true;
 
-                fetch(`/mark-notification-as-read`, {
+                fetch(`{{ route('mark-notification-as-read') }}`, {
                     method: 'PUT',
                     headers: {
+                        'Accept': 'application/json',
                         'Content-Type': 'application/json',
-                        'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').getAttribute('content')
-                    }
+                        'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').getAttribute('content'),
+                    },
                 })
                 .then(response => {
                     if (!response.ok) {
@@ -193,11 +217,7 @@
                     return response.json();
                 })
                 .then(data => {
-                    if (countNotification) {
-                        countNotification.innerText = '0';
-                        countNotification.classList.add('hidden');
-                        countNotification.classList.remove('flex');
-                    }
+                    hideNotificationBadges();
                 })
                 .catch(error => {
                     console.error(error.message);
